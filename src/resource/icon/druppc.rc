@@ -1,0 +1,2 @@
+// DRUPPC application icon (file/explorer icon; resources stay external at runtime)
+IDI_ICON1 ICON "main.ico"
