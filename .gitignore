@@ -1,0 +1,4 @@
+dist
+# Large font binaries are shipped outside the repo
+src/resource/font/*.otf
+src/resource/font/**/*.otf
