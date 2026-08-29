@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConnectionSettingsDialog</class>
+ <widget class="QDialog" name="ConnectionSettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>180</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Connection Settings</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formConnection">
+     <item row="0" column="0">
+      <widget class="QLabel" name="lblRespTimeout">
+       <property name="text">
+        <string>Response Timeout, ms</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="spinRespTimeout">
+       <property name="minimum">
+        <number>100</number>
+       </property>
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="value">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="lblRetries">
+       <property name="text">
+        <string>Retry Count</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="spinRetries">
+       <property name="maximum">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>3</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblHint">
+     <property name="text">
+      <string>Applied to request-reply communication. A request is retried up to this count before reporting failure. The 0x1E save command waits the full timeout.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
