@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AnalogPage</class>
+ <widget class="QWidget" name="AnalogPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>760</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="layoutMain">
+   <property name="spacing"><number>4</number></property>
+   <property name="leftMargin"><number>6</number></property>
+   <property name="topMargin"><number>6</number></property>
+   <property name="rightMargin"><number>6</number></property>
+   <property name="bottomMargin"><number>6</number></property>
+   <item>
+    <widget class="QLabel" name="lblAiTitle">
+     <property name="text">
+      <string>Analog Inputs AI0~AI3 (0-10 V / 0-20 mA)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlAi">
+     <item>
+      <layout class="QVBoxLayout" name="vlAi0">
+       <item><widget class="QLabel" name="lblAi0"><property name="text"><string>AI0</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAi0V"><item><widget class="QLCDNumber" name="lcdAi0V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi0VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAi0mA"><item><widget class="QLCDNumber" name="lcdAi0mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi0mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="vlAi1">
+       <item><widget class="QLabel" name="lblAi1"><property name="text"><string>AI1</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAi1V"><item><widget class="QLCDNumber" name="lcdAi1V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi1VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAi1mA"><item><widget class="QLCDNumber" name="lcdAi1mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi1mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="vlAi2">
+       <item><widget class="QLabel" name="lblAi2"><property name="text"><string>AI2</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAi2V"><item><widget class="QLCDNumber" name="lcdAi2V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi2VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAi2mA"><item><widget class="QLCDNumber" name="lcdAi2mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi2mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="vlAi3">
+       <item><widget class="QLabel" name="lblAi3"><property name="text"><string>AI3</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAi3V"><item><widget class="QLCDNumber" name="lcdAi3V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi3VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAi3mA"><item><widget class="QLCDNumber" name="lcdAi3mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAi3mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblAoTitle">
+     <property name="text">
+      <string>Analog Outputs AO0~AO3 (Read = from radio, Write = pending)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlAo">
+     <item>
+      <layout class="QVBoxLayout" name="vlAo0">
+       <item><widget class="QLabel" name="lblAo0"><property name="text"><string>AO0</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><widget class="QLabel" name="lblAo0ReadTitle"><property name="text"><string>Read</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo0V"><item><widget class="QLCDNumber" name="lcdAo0V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo0VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo0mA"><item><widget class="QLCDNumber" name="lcdAo0mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo0mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QLabel" name="lblAo0WriteTitle"><property name="text"><string>Write</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo0WV"><item><widget class="QLCDNumber" name="lcdAo0WV"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo0WVUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo0WmA"><item><widget class="QLCDNumber" name="lcdAo0WmA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo0WmAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QDial" name="dialAo0"><property name="maximum"><number>1023</number></property></widget></item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="vlAo1">
+       <item><widget class="QLabel" name="lblAo1"><property name="text"><string>AO1</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><widget class="QLabel" name="lblAo1ReadTitle"><property name="text"><string>Read</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo1V"><item><widget class="QLCDNumber" name="lcdAo1V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo1VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo1mA"><item><widget class="QLCDNumber" name="lcdAo1mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo1mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QLabel" name="lblAo1WriteTitle"><property name="text"><string>Write</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo1WV"><item><widget class="QLCDNumber" name="lcdAo1WV"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo1WVUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo1WmA"><item><widget class="QLCDNumber" name="lcdAo1WmA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo1WmAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QDial" name="dialAo1"><property name="maximum"><number>1023</number></property></widget></item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="vlAo2">
+       <item><widget class="QLabel" name="lblAo2"><property name="text"><string>AO2</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><widget class="QLabel" name="lblAo2ReadTitle"><property name="text"><string>Read</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo2V"><item><widget class="QLCDNumber" name="lcdAo2V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo2VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo2mA"><item><widget class="QLCDNumber" name="lcdAo2mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo2mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QLabel" name="lblAo2WriteTitle"><property name="text"><string>Write</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo2WV"><item><widget class="QLCDNumber" name="lcdAo2WV"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo2WVUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo2WmA"><item><widget class="QLCDNumber" name="lcdAo2WmA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo2WmAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QDial" name="dialAo2"><property name="maximum"><number>1023</number></property></widget></item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="vlAo3">
+       <item><widget class="QLabel" name="lblAo3"><property name="text"><string>AO3</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><widget class="QLabel" name="lblAo3ReadTitle"><property name="text"><string>Read</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo3V"><item><widget class="QLCDNumber" name="lcdAo3V"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo3VUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo3mA"><item><widget class="QLCDNumber" name="lcdAo3mA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo3mAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QLabel" name="lblAo3WriteTitle"><property name="text"><string>Write</string></property><property name="alignment"><enum>Qt::AlignCenter</enum></property></widget></item>
+       <item><layout class="QHBoxLayout" name="hlAo3WV"><item><widget class="QLCDNumber" name="lcdAo3WV"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo3WVUnit"><property name="text"><string>(V)</string></property></widget></item></layout></item>
+       <item><layout class="QHBoxLayout" name="hlAo3WmA"><item><widget class="QLCDNumber" name="lcdAo3WmA"><property name="minimumSize"><size><width>100</width><height>28</height></size></property><property name="maximumSize"><size><width>100</width><height>28</height></size></property><property name="digitCount"><number>5</number></property><property name="segmentStyle"><enum>QLCDNumber::Flat</enum></property></widget></item><item><widget class="QLabel" name="lblAo3WmAUnit"><property name="text"><string>(mA)</string></property></widget></item></layout></item>
+       <item><widget class="QDial" name="dialAo3"><property name="maximum"><number>1023</number></property></widget></item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlWrite">
+     <item>
+      <spacer name="spacerWrite">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnAoRead">
+       <property name="maximumSize">
+        <size>
+         <width>84</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Read</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnAoWrite">
+       <property name="maximumSize">
+        <size>
+         <width>84</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
