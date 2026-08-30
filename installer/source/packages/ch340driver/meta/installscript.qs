@@ -35,13 +35,13 @@ Component.prototype.createOperations = function()
 
     var ui = component.userInterface("DriverPage");
     if (ui && ui.ch340DriverBox && ui.ch340DriverBox.checked) {
-        // Run the bundled install_driver.bat (which pnputils the INF from its
-        // own directory via %~dp0). QtIFW's elevated "Execute" wraps the whole
-        // argument string in quotes, which corrupts commands that contain their
-        // own quotes or multiple parameters. A .bat avoids every quoting issue:
-        // @TargetDir@ is substituted by QtIFW and, for the default no-space
-        // install path, the wrapped argument is parsed correctly by cmd.
-        component.addElevatedOperation("Execute", "cmd.exe", "/C",
+        // Run the bundled install_driver.bat at NORMAL (non-elevated) privilege.
+        // The bat internally launches pnputil with Start-Process -Verb RunAs to
+        // request a UAC elevation prompt just for the driver install. Running the
+        // bat non-elevated keeps %TEMP% as the user's temp (so the diagnostic log
+        // is where the user can find it) and avoids the elevated-Execute quoting
+        // and working-directory bugs of QtIFW.
+        component.addOperation("Execute", "cmd.exe", "/C",
             "@TargetDir@/components/ch340driver/install_driver.bat");
     }
 };
