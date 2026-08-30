@@ -111,6 +111,10 @@ foreach ($a in $arches) {
         if (-not (Test-Path $src)) { throw "Missing driver file: $src" }
         Copy-Item $src $DrvDataDir
     }
+    # driver install wrapper batch (lives next to the driver source folder)
+    $batSrc = Join-Path (Split-Path $DrvSrcDir -Parent) "install_driver.bat"
+    if (-not (Test-Path $batSrc)) { throw "Missing driver wrapper: $batSrc" }
+    Copy-Item $batSrc $DrvDataDir -Force
 
     # ---- refresh licenses and installer icon ----
     foreach ($lic in @("license-gpl3.txt", "license-qt.txt", "license-font.txt")) {
