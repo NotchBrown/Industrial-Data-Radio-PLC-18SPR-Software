@@ -79,9 +79,9 @@ void installTranslator(QApplication &app)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QApplication::setOrganizationName("DRUPPC");
-    QApplication::setApplicationName("DRUPPC");
-    QApplication::setApplicationVersion("0.1.0");
+    QApplication::setOrganizationName("LCU-Phys-GZB-RSJ");
+    QApplication::setApplicationName("IDR Configurator");
+    QApplication::setApplicationVersion("0.0.2");
     QApplication::setStyle("Fusion");
 
     applyTheme(app, QSettings().value("ui/theme", "light").toString() == "dark");
