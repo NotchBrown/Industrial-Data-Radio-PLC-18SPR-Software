@@ -3,14 +3,14 @@
  <class>DriverPage</class>
  <widget class="QWidget" name="DriverPage">
   <property name="windowTitle">
-   <string>CH340 Driver</string>
+   <string>Device Driver</string>
   </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>120</height>
+    <width>460</width>
+    <height>170</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -35,6 +35,26 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkPatchBox">
+     <property name="text">
+      <string>Install Windows 7 SHA-2 support update (KB3033929)</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblPatch">
+     <property name="text">
+      <string>Only applied on Windows 7 that lacks SHA-2 patch support; it needs a restart before the driver can be installed.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -42,7 +62,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>20</height>
       </size>
      </property>
     </spacer>
