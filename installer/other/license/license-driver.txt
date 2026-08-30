@@ -1,0 +1,24 @@
+WCH CH340/CH341 USB-to-Serial Driver License
+
+The CH340/CH341 USB-to-Serial driver is proprietary software of
+WCH (Nanjing QinHeng Microelectronics Co., Ltd.).
+Driver INF identity: "CH341SER" (v4.0, 02/11/2026)
+Copyright (C) WCH 2001-2026  (as declared in CH341SER.INF)
+
+Your device uses a genuine WCH CH340 USB-to-Serial chip.
+
+Redistribution terms (official WCH statement, wch.cn customer forum):
+  When using an original/genuine WCH chip, the accompanying chip driver
+  software is licensed free of charge and may be used directly, installed
+  silently, or embedded into an application installer. Use is limited to
+  lawful purposes.
+
+This installer bundles the original, unmodified WCH driver package so that
+the radio appears as a standard Windows COM port. No license fee applies.
+
+Official driver download and current version:
+  https://www.wch.cn/downloads/CH341SER_EXE.html
+
+The driver files (INF/SYS/CAT/DLL) are WCH intellectual property and must
+not be modified. Any questions concerning redistribution should be
+addressed to WCH technical support.
