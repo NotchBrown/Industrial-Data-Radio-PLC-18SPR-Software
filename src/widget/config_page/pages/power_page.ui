@@ -132,7 +132,7 @@
        <item>
         <widget class="QPushButton" name="btnRfCfgWrite">
          <property name="text">
-          <string>Upload</string>
+          <string>Write</string>
          </property>
         </widget>
        </item>
