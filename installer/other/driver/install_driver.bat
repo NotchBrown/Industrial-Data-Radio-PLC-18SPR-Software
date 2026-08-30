@@ -42,10 +42,10 @@ if not "%OSVER%"=="6.1" (
     echo SKIP_PATCH_NON_WIN7 >> "%USERLOG%"
     exit /b 0
 )
-rem Already patched -> nothing to do.
+rem Patch already present -> nothing to do, fall through to install the driver.
 if defined PATCHED (
-    echo SKIP_PATCH_ALREADY >> "%USERLOG%"
-    exit /b 0
+    echo PATCH_ALREADY_CONTINUE_DRIVER >> "%USERLOG%"
+    goto :doDriver
 )
 rem Locate the bundled .msu for this architecture.
 set "PATCH="
