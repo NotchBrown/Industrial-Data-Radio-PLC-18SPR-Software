@@ -35,16 +35,12 @@ Component.prototype.createOperations = function()
 
     var ui = component.userInterface("DriverPage");
     if (ui && ui.ch340DriverBox && ui.ch340DriverBox.checked) {
-        var target = installer.value("TargetDir");
-        if (target === "" || target === undefined)
-            target = "@TargetDir@";
-        var drvDir = installer.toNativeSeparators(target + "/components/ch340driver");
-
-        // Run pnputil from the driver directory with a relative INF path.
-        // pnputil /install also binds the package to a connected CH340 device
-        // if present; otherwise the driver is staged for the next plug-in.
+        // Absolute, quoted INF path via cmd.exe /C. @TargetDir@ is substituted
+        // by QtIFW into operation arguments; the quotes protect against spaces
+        // in the install path (e.g. "C:\Program Files\..."). No workingDirectory
+        // parameter is used: its value is not reliably substituted and broke the
+        // process start with ERROR_DIRECTORY ("目录名称无效").
         component.addElevatedOperation("Execute", "cmd.exe", "/C",
-            'pnputil.exe /add-driver "CH341SER.INF" /install',
-            "workingDirectory=" + drvDir);
+            'pnputil.exe /add-driver "@TargetDir@/components/ch340driver/CH341SER.INF" /install');
     }
 };
