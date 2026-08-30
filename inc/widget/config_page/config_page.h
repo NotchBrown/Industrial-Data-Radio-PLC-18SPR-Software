@@ -96,6 +96,9 @@ private:
     quint16 m_freqHi = 0;
     quint8 m_periodLo[32] = {0};
     quint8 m_periodHi[32] = {0};
+    // Guards the task-table editor while a row is being loaded into it, so the
+    // live editor->row binding does not echo values back into the same row.
+    bool m_taskLoading = false;
 };
 
 #endif // DRUPPC_CONFIG_PAGE_H

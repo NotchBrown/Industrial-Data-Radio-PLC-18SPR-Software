@@ -663,30 +663,31 @@ void ConfigPage::wirePages()
                 t->item(n, 0)->setText(QString::number(n));
         };
         ensureTaskRows(1);
-        // CI byte bits (see frame.md): DH DL A3 A2 A1 A0 word  compand
-        const auto packCi = [this] {
+        // CI byte bits (see frame.md): DH DL A3 A2 A1 A0 word compand.
+        // 10-bit (word bit = 1) and A-law compand are mutually exclusive.
+        const auto packCi = [this](QCheckBox *dh, QCheckBox *dl, QCheckBox *a3, QCheckBox *a2,
+                                   QCheckBox *a1, QCheckBox *a0, QComboBox *word, QCheckBox *comp) {
             quint8 v = 0;
-            v |= m_pg->tasks.chk1Dh->isChecked() ? 0x80 : 0;
-            v |= m_pg->tasks.chk1Dl->isChecked() ? 0x40 : 0;
-            v |= m_pg->tasks.chk1A3->isChecked() ? 0x20 : 0;
-            v |= m_pg->tasks.chk1A2->isChecked() ? 0x10 : 0;
-            v |= m_pg->tasks.chk1A1->isChecked() ? 0x08 : 0;
-            v |= m_pg->tasks.chk1A0->isChecked() ? 0x04 : 0;
-            v |= m_pg->tasks.combo1Word->currentIndex() == 0 ? 0x02 : 0; // 10-bit = 1
-            v |= m_pg->tasks.chk1Comp->isChecked() ? 0x01 : 0;
+            v |= dh->isChecked() ? 0x80 : 0;
+            v |= dl->isChecked() ? 0x40 : 0;
+            v |= a3->isChecked() ? 0x20 : 0;
+            v |= a2->isChecked() ? 0x10 : 0;
+            v |= a1->isChecked() ? 0x08 : 0;
+            v |= a0->isChecked() ? 0x04 : 0;
+            const bool is10Bit = word->currentIndex() == 0; // "10-bit Length"
+            v |= is10Bit ? 0x02 : 0;
+            v |= (!is10Bit && comp->isChecked()) ? 0x01 : 0;
             return v;
         };
-        const auto packCi2 = [this] {
-            quint8 v = 0;
-            v |= m_pg->tasks.chk2Dh->isChecked() ? 0x80 : 0;
-            v |= m_pg->tasks.chk2Dl->isChecked() ? 0x40 : 0;
-            v |= m_pg->tasks.chk2A3->isChecked() ? 0x20 : 0;
-            v |= m_pg->tasks.chk2A2->isChecked() ? 0x10 : 0;
-            v |= m_pg->tasks.chk2A1->isChecked() ? 0x08 : 0;
-            v |= m_pg->tasks.chk2A0->isChecked() ? 0x04 : 0;
-            v |= m_pg->tasks.combo2Word->currentIndex() == 0 ? 0x02 : 0;
-            v |= m_pg->tasks.chk2Comp->isChecked() ? 0x01 : 0;
-            return v;
+        const auto packCi1 = [this, packCi] {
+            return packCi(m_pg->tasks.chk1Dh, m_pg->tasks.chk1Dl, m_pg->tasks.chk1A3,
+                          m_pg->tasks.chk1A2, m_pg->tasks.chk1A1, m_pg->tasks.chk1A0,
+                          m_pg->tasks.combo1Word, m_pg->tasks.chk1Comp);
+        };
+        const auto packCi2 = [this, packCi] {
+            return packCi(m_pg->tasks.chk2Dh, m_pg->tasks.chk2Dl, m_pg->tasks.chk2A3,
+                          m_pg->tasks.chk2A2, m_pg->tasks.chk2A1, m_pg->tasks.chk2A0,
+                          m_pg->tasks.combo2Word, m_pg->tasks.chk2Comp);
         };
         const auto applyCiToEditor = [this](quint8 v, QCheckBox *dh, QCheckBox *dl, QCheckBox *a3,
                                             QCheckBox *a2, QCheckBox *a1, QCheckBox *a0,
@@ -700,11 +701,39 @@ void ConfigPage::wirePages()
             word->setCurrentIndex((v & 0x02) ? 0 : 1);
             comp->setChecked(v & 0x01);
         };
+        // 10-bit word length disables the A-law compand checkbox (frame.md).
+        const auto updateCompandState = [this] {
+            const bool c1 = m_pg->tasks.combo1Word->currentIndex() == 0;
+            m_pg->tasks.chk1Comp->setEnabled(!c1);
+            if (c1)
+                m_pg->tasks.chk1Comp->setChecked(false);
+            const bool c2 = m_pg->tasks.combo2Word->currentIndex() == 0;
+            m_pg->tasks.chk2Comp->setEnabled(!c2);
+            if (c2)
+                m_pg->tasks.chk2Comp->setChecked(false);
+        };
+        // Live binding: write the editor state into the selected row.
+        const auto syncRowFromEditor = [this, t, packCi1, packCi2](int n) {
+            if (n < 0 || n >= t->rowCount())
+                return;
+            t->item(n, 1)->setText(m_pg->tasks.editTaskName->text());
+            t->item(n, 2)->setCheckState(m_pg->tasks.chkTaskEna->isChecked() ? Qt::Checked
+                                                                             : Qt::Unchecked);
+            t->item(n, 3)->setText(
+                    QString::number(m_pg->tasks.spinTaskInterval->value(), 'f', 2));
+            t->item(n, 4)->setText(hex8(packCi1()));
+            t->item(n, 5)->setText(hex8(packCi2()));
+        };
+        const auto syncCurrentRow = [this, t, syncRowFromEditor] {
+            if (!m_taskLoading)
+                syncRowFromEditor(t->currentRow());
+        };
         // Load the selected row into the editor.
-        const auto loadRowToEditor = [this, t, applyCiToEditor] {
+        const auto loadRowToEditor = [this, t, applyCiToEditor, updateCompandState] {
             const int n = t->currentRow();
             if (n < 0)
                 return;
+            m_taskLoading = true;
             m_pg->tasks.editTaskName->setText(t->item(n, 1)->text());
             m_pg->tasks.chkTaskEna->setChecked(t->item(n, 2)->checkState() == Qt::Checked);
             m_pg->tasks.spinTaskInterval->setValue(t->item(n, 3)->text().toDouble());
@@ -717,24 +746,41 @@ void ConfigPage::wirePages()
             applyCiToEditor(static_cast<quint8>(ci2), m_pg->tasks.chk2Dh, m_pg->tasks.chk2Dl,
                             m_pg->tasks.chk2A3, m_pg->tasks.chk2A2, m_pg->tasks.chk2A1,
                             m_pg->tasks.chk2A0, m_pg->tasks.combo2Word, m_pg->tasks.chk2Comp);
+            m_taskLoading = false;
+            updateCompandState();
         };
         connect(t, &QTableWidget::itemSelectionChanged, this, loadRowToEditor);
         t->selectRow(0); // select the first task so the editor is usable immediately
-        connect(m_pg->tasks.btnTaskRowApply, &QPushButton::clicked, this,
-                [this, t, packCi, packCi2] {
-                    const int n = t->currentRow();
-                    if (n < 0) {
-                        emit statusMessage(tr("Select a task row first."));
-                        return;
-                    }
-                    t->item(n, 1)->setText(m_pg->tasks.editTaskName->text());
-                    t->item(n, 2)->setCheckState(m_pg->tasks.chkTaskEna->isChecked() ? Qt::Checked
-                                                                                    : Qt::Unchecked);
-                    t->item(n, 3)->setText(
-                            QString::number(m_pg->tasks.spinTaskInterval->value(), 'f', 2));
-                    t->item(n, 4)->setText(hex8(packCi()));
-                    t->item(n, 5)->setText(hex8(packCi2()));
+
+        // The table is read-only; every editor control updates the selected row
+        // immediately (no separate Apply-row button).
+        connect(m_pg->tasks.editTaskName, &QLineEdit::textEdited, this, syncCurrentRow);
+        connect(m_pg->tasks.chkTaskEna, &QCheckBox::toggled, this, syncCurrentRow);
+        connect(m_pg->tasks.spinTaskInterval, qOverload<double>(&QDoubleSpinBox::valueChanged),
+                this, syncCurrentRow);
+        const QList<QCheckBox *> ci1Boxes = {m_pg->tasks.chk1Dh, m_pg->tasks.chk1Dl,
+                                             m_pg->tasks.chk1A3, m_pg->tasks.chk1A2,
+                                             m_pg->tasks.chk1A1, m_pg->tasks.chk1A0,
+                                             m_pg->tasks.chk1Comp};
+        for (QCheckBox *cb : ci1Boxes)
+            connect(cb, &QCheckBox::toggled, this, syncCurrentRow);
+        const QList<QCheckBox *> ci2Boxes = {m_pg->tasks.chk2Dh, m_pg->tasks.chk2Dl,
+                                             m_pg->tasks.chk2A3, m_pg->tasks.chk2A2,
+                                             m_pg->tasks.chk2A1, m_pg->tasks.chk2A0,
+                                             m_pg->tasks.chk2Comp};
+        for (QCheckBox *cb : ci2Boxes)
+            connect(cb, &QCheckBox::toggled, this, syncCurrentRow);
+        connect(m_pg->tasks.combo1Word, qOverload<int>(&QComboBox::currentIndexChanged), this,
+                [this, updateCompandState, syncCurrentRow](int) {
+                    updateCompandState();
+                    syncCurrentRow();
                 });
+        connect(m_pg->tasks.combo2Word, qOverload<int>(&QComboBox::currentIndexChanged), this,
+                [this, updateCompandState, syncCurrentRow](int) {
+                    updateCompandState();
+                    syncCurrentRow();
+                });
+        updateCompandState();
         connect(m_pg->tasks.btnTaskAdd, &QPushButton::clicked, this, [this, t, ensureTaskRows,
                                                                       refreshTaskNumbers] {
             if (t->rowCount() >= 32) {
@@ -743,21 +789,24 @@ void ConfigPage::wirePages()
             }
             ensureTaskRows(t->rowCount() + 1);
             refreshTaskNumbers();
+            t->setCurrentCell(t->rowCount() - 1, 0); // select the new row for editing
         });
-        connect(m_pg->tasks.btnTaskRemove, &QPushButton::clicked, this, [this, t, refreshTaskNumbers] {
-            if (t->rowCount() <= 0) {
-                emit statusMessage(tr("No task rows to remove."));
-                return;
-            }
-            const int n = t->currentRow();
-            if (n < 0) {
-                emit statusMessage(tr("Select a task row to remove."));
-                return;
-            }
-            t->removeRow(n);
-            refreshTaskNumbers();
-        });
-        connect(m_pg->tasks.btnTasksRead, &QPushButton::clicked, this, [this, ensureTaskRows] {
+        connect(m_pg->tasks.btnTaskDelete, &QPushButton::clicked, this,
+                [this, t, refreshTaskNumbers] {
+                    if (t->rowCount() <= 1) {
+                        emit statusMessage(tr("At least one task is required."));
+                        return;
+                    }
+                    const int n = t->currentRow();
+                    if (n < 0) {
+                        emit statusMessage(tr("Select a task row to delete."));
+                        return;
+                    }
+                    t->removeRow(n);
+                    refreshTaskNumbers();
+                    t->setCurrentCell(qMin(n, t->rowCount() - 1), 0);
+                });
+        connect(m_pg->tasks.btnTaskRead, &QPushButton::clicked, this, [this, ensureTaskRows] {
             ensureTaskRows(32); // expand so every slot has a cell to fill
             for (int n = 0; n < 32; ++n) {
                 sendRead(Proto::taskCi1(n));
@@ -767,9 +816,9 @@ void ConfigPage::wirePages()
                 sendRead(Proto::taskCi2(n));
             }
         });
-        connect(m_pg->tasks.btnTasksWrite, &QPushButton::clicked, this, [this] {
+        connect(m_pg->tasks.btnTaskApply, &QPushButton::clicked, this, [this] {
             QTableWidget *table = m_pg->tasks.tableTasks;
-            if (table->rowCount() <= 0) {
+            if (table->rowCount() < 1) {
                 QMessageBox::warning(this, tr("Task Table"),
                                      tr("At least one task is required before applying."));
                 return;
@@ -785,15 +834,16 @@ void ConfigPage::wirePages()
                         return;
                     }
                     bool ok = false;
-                    // Interval in ms; protocol unit = TIM4 6kHz tick (166.7us), 6 ticks = 1 ms.
+                    // Interval in ms; protocol unit = TIM4 6kHz tick (166.7us),
+                    // 6 ticks = 1 ms, so the minimum is one tick (1/6 ms).
                     const double periodMs = table->item(n, 3)->text().toDouble(&ok);
-                    if (!ok || periodMs < 0) {
+                    if (!ok || periodMs < 1.0 / 6.0) {
                         emit statusMessage(
-                                tr("Task %1: interval must be a positive time in ms.").arg(n));
+                                tr("Task %1: interval must be at least 1/6 ms.").arg(n));
                         return;
                     }
                     const qint64 units = qRound64(periodMs * 6.0);
-                    if (units < 0 || units > 0xFFFF) {
+                    if (units < 1 || units > 0xFFFF) {
                         emit statusMessage(tr("Task %1: interval exceeds ~10.9 s limit.").arg(n));
                         return;
                     }
@@ -807,30 +857,46 @@ void ConfigPage::wirePages()
             }
             emit statusMessage(tr("Applying task table..."));
         });
+        // After a device reply updates a cell, refresh the editor if that row is
+        // currently selected, so the editor always mirrors the device data.
+        const auto maybeReloadEditor = [t, loadRowToEditor](int n) {
+            if (t->currentRow() == n)
+                loadRowToEditor();
+        };
         for (int n = 0; n < 32; ++n) {
-            registerHandler(Proto::taskCi1(n), [this, n, ensureTaskRows](quint8, quint16 data) {
-                ensureTaskRows(n + 1);
-                m_pg->tasks.tableTasks->item(n, 4)->setText(hex8(data));
-            });
-            registerHandler(Proto::taskEna(n), [this, n, ensureTaskRows](quint8, quint16 data) {
-                ensureTaskRows(n + 1);
-                m_pg->tasks.tableTasks->item(n, 2)->setCheckState(
-                        (data & 0x01) ? Qt::Checked : Qt::Unchecked);
-            });
-            registerHandler(Proto::taskPeriodLo(n), [this, n, ensureTaskRows](quint8, quint16 data) {
-                ensureTaskRows(n + 1);
-                m_periodLo[n] = static_cast<quint8>(data & 0xFF);
-                updatePeriodItem(n);
-            });
-            registerHandler(Proto::taskPeriodHi(n), [this, n, ensureTaskRows](quint8, quint16 data) {
-                ensureTaskRows(n + 1);
-                m_periodHi[n] = static_cast<quint8>(data & 0xFF);
-                updatePeriodItem(n);
-            });
-            registerHandler(Proto::taskCi2(n), [this, n, ensureTaskRows](quint8, quint16 data) {
-                ensureTaskRows(n + 1);
-                m_pg->tasks.tableTasks->item(n, 5)->setText(hex8(data));
-            });
+            registerHandler(Proto::taskCi1(n),
+                            [this, n, ensureTaskRows, maybeReloadEditor](quint8, quint16 data) {
+                                ensureTaskRows(n + 1);
+                                m_pg->tasks.tableTasks->item(n, 4)->setText(hex8(data));
+                                maybeReloadEditor(n);
+                            });
+            registerHandler(Proto::taskEna(n),
+                            [this, n, ensureTaskRows, maybeReloadEditor](quint8, quint16 data) {
+                                ensureTaskRows(n + 1);
+                                m_pg->tasks.tableTasks->item(n, 2)->setCheckState(
+                                        (data & 0x01) ? Qt::Checked : Qt::Unchecked);
+                                maybeReloadEditor(n);
+                            });
+            registerHandler(Proto::taskPeriodLo(n),
+                            [this, n, ensureTaskRows, maybeReloadEditor](quint8, quint16 data) {
+                                ensureTaskRows(n + 1);
+                                m_periodLo[n] = static_cast<quint8>(data & 0xFF);
+                                updatePeriodItem(n);
+                                maybeReloadEditor(n);
+                            });
+            registerHandler(Proto::taskPeriodHi(n),
+                            [this, n, ensureTaskRows, maybeReloadEditor](quint8, quint16 data) {
+                                ensureTaskRows(n + 1);
+                                m_periodHi[n] = static_cast<quint8>(data & 0xFF);
+                                updatePeriodItem(n);
+                                maybeReloadEditor(n);
+                            });
+            registerHandler(Proto::taskCi2(n),
+                            [this, n, ensureTaskRows, maybeReloadEditor](quint8, quint16 data) {
+                                ensureTaskRows(n + 1);
+                                m_pg->tasks.tableTasks->item(n, 5)->setText(hex8(data));
+                                maybeReloadEditor(n);
+                            });
         }
     }
 
