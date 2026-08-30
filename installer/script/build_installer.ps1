@@ -4,6 +4,7 @@
 #   powershell ... build_installer.ps1 -Arch x64
 #   powershell ... build_installer.ps1 -Arch x86
 #   powershell ... build_installer.ps1 -Arch both      (default)
+#   powershell ... build_installer.ps1 -SkipBuild      (use existing dist, skip app build)
 # Output: installer\dist\IDRConfigurator_Setup_<arch>_<datetime>.exe
 #
 # Everything installer-related lives under installer/:
@@ -14,7 +15,8 @@
 
 param(
     [ValidateSet("x64", "x86", "both")]
-    [string]$Arch = "both"
+    [string]$Arch = "both",
+    [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,6 +33,20 @@ $DrvDataDir   = Join-Path $Packages "ch340driver\data"
 $DrvSrcDir    = Join-Path $Installer "other\driver\CH341SER"
 $OutDir       = Join-Path $Installer "dist"
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
+
+# ---- 1. build the application for the requested architectures (unless skipped) ----
+if (-not $SkipBuild) {
+    $buildFor = @{}
+    if ($Arch -eq "both" -or $Arch -eq "x64") { $buildFor["x64"] = "script\build_mingw64.ps1" }
+    if ($Arch -eq "both" -or $Arch -eq "x86") { $buildFor["x86"] = "script\build_mingw32.ps1" }
+    foreach ($b in $buildFor.GetEnumerator() | Sort-Object Key) {
+        Write-Host ""
+        Write-Host "== Building $($b.Key) application =="
+        & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $AppRoot $b.Value)
+        if ($LASTEXITCODE -ne 0) { throw "Application build failed for $($b.Key)" }
+    }
+    Write-Host ""
+}
 
 # ---- detect an EXE's machine architecture from its PE header ----
 # x64 -> 0x8664, x86 -> 0x014c
