@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>IDR Configurator</Name>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <Title>IDR Configurator</Title>
     <Publisher>LCU-Phys-GZB-RSJ</Publisher>
     <ProductUrl>https://github.com/NotchBrown/Industrial-Data-Radio-PLC-18SPR-Software</ProductUrl>

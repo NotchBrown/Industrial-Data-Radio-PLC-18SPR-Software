@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QApplication::setOrganizationName("LCU-Phys-GZB-RSJ");
     QApplication::setApplicationName("IDR Configurator");
-    QApplication::setApplicationVersion("0.0.2");
+    QApplication::setApplicationVersion("0.0.3");
     QApplication::setStyle("Fusion");
 
     applyTheme(app, QSettings().value("ui/theme", "light").toString() == "dark");
