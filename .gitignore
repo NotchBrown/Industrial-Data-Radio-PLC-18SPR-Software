@@ -7,7 +7,8 @@ installer/source/packages/ch340driver/data/
 # License texts copied into meta/ by the installer build script (source of truth: installer/other/license)
 installer/source/packages/*/meta/license-*.txt
 # WCH CH340 driver binaries are download-only (must not be committed)
-installer/other/driver/
+installer/other/driver/*
+!installer/other/driver/install_driver.bat
 # Installer icon copied from src/resource/icon/main.ico by the installer build script
 installer/source/config/druppc_setup.ico
 # Large font binaries are shipped outside the repo
