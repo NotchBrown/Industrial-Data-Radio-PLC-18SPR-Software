@@ -1,20 +1,26 @@
 /****************************************************************************
 ** IDR Configurator - CH340 driver component script.
-** Adds a "CH340 Driver" wizard page with an install checkbox. When checked,
-** the bundled (complete, unmodified) WCH driver is installed with pnputil.
 **
-** Path strategy (QtIFW best practice, see the "modify extract" example):
-** The component's data is explicitly extracted to the fixed, well-known
-** location "@TargetDir@/ch340driver" via createOperationsForArchive() instead
-** of relying on QtIFW's default components/<name> extraction path. Both the
-** extract target and the executed batch file use the same path, so the driver
-** files and install_driver.bat are always found together.
+** Wizard page: a "Device Driver" page with two checkboxes:
+**   1. ch340DriverBox - install the CH340 driver (always meaningful).
+**   2. checkPatchBox   - install the Windows 7 SHA-2 support update KB3033929.
 **
-** Privilege strategy:
-** The batch runs at NORMAL privilege (addOperation, not addElevatedOperation,
-** which has QtIFW quoting bugs and an unexpected %TEMP% context). Inside the
-** batch, pnputil is launched with Start-Process -Verb RunAs, requesting a
-** single UAC elevation prompt just for the driver install.
+** Behaviour:
+**   - KB3033929 is ONLY ever applied on Windows 7 (OS build 6.1) that lacks
+**     SHA-2 support and only when checkPatchBox is checked. It is NEVER
+**     triggered on Windows 8/8.1/10/11 (the check is gated on OS version here
+**     AND again inside the batch file, belt and braces).
+**   - On Windows 7 needing the patch, the patch is installed first (which
+**     requires a restart) and the driver is deferred: the driver's SHA-256
+**     signature cannot be verified until the PC is rebooted. A message asks
+**     the user to restart and re-run the installer.
+**   - Otherwise the driver is imported into the DriverStore with /add-driver.
+**
+** Robustness / no-hang:
+**   - Uses addOperation (NORMAL privilege) + the batch elevates the elevated
+**     tool with Start-Process -Verb RunAs inside try/catch, so a canceled UAC
+**     cannot hang the installer.
+**   - The patch batch uses wusa /quiet /norestart and always exits cleanly.
 ****************************************************************************/
 
 function Component()
@@ -26,30 +32,43 @@ function Component()
 
 Component.prototype.installerLoaded = function()
 {
-    // Insert the driver options page right before "Ready to Install".
     installer.addWizardPage(component, "DriverPage", QInstaller.ReadyForInstallation);
 };
 
-// Extract this component's data to a fixed path instead of QtIFW's default
-// @TargetDir@/components/<name> so the batch script always finds the driver.
+// Extract this component's data to a fixed path (see "modify extract" example).
 Component.prototype.createOperationsForArchive = function(archive)
 {
     component.addOperation("Extract", archive, "@TargetDir@/ch340driver");
 };
 
+function isWindows7()
+{
+    var os = systemInfo.osVersion().toString();
+    // Windows 7 = OS build 6.1; 8/8.1=6.2/6.3, 10/11=10. Only 6.1 matches.
+    return os.indexOf("6.1") === 0;
+}
+
 Component.prototype.createOperations = function()
 {
-    // Creates the default operations; createOperationsForArchive() above
-    // redirects the data extraction to "@TargetDir@/ch340driver".
     component.createOperations();
 
     if (installer.isUninstaller())
         return;
 
     var ui = component.userInterface("DriverPage");
-    if (ui && ui.ch340DriverBox && ui.ch340DriverBox.checked) {
-        // Run the wrapper batch at normal privilege; it elevates pnputil itself.
+    var wantDriver = ui && ui.ch340DriverBox && ui.ch340DriverBox.checked;
+    var wantPatch  = ui && ui.checkPatchBox  && ui.checkPatchBox.checked;
+
+    // --- Windows 7: install the SHA-2 patch if requested (needs restart). ---
+    if (isWindows7() && wantPatch) {
         component.addOperation("Execute", "cmd.exe", "/C",
-            "@TargetDir@/ch340driver/install_driver.bat");
+            "@TargetDir@/ch340driver/install_driver.bat --patch");
+        return; // defer driver until after the required restart
+    }
+
+    // --- all other cases: install the driver directly. ---
+    if (wantDriver) {
+        component.addOperation("Execute", "cmd.exe", "/C",
+            "@TargetDir@/ch340driver/install_driver.bat --driver");
     }
 };
