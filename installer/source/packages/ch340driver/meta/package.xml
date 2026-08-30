@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>CH340 USB-to-Serial Driver</DisplayName>
+    <Description>WCH genuine CH340 driver (architecture-matched) for the data radio COM port.</Description>
+    <Version>4.0.2026.02</Version>
+    <ReleaseDate>2026-08-30</ReleaseDate>
+    <Default>true</Default>
+    <Script>installscript.qs</Script>
+    <UserInterfaces>
+        <UserInterface>drivercheck.ui</UserInterface>
+    </UserInterfaces>
+    <Licenses>
+        <License name="WCH CH340/CH341 Driver" file="license-driver.txt" />
+    </Licenses>
+</Package>
