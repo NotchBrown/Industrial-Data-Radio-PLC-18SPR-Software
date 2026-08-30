@@ -34,7 +34,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="lblRole">
        <property name="text">
-        <string>Master-Slave Role (0x19)</string>
+        <string>Master-Slave Role</string>
        </property>
       </widget>
      </item>
@@ -68,7 +68,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="btnRoleUpload">
+        <widget class="QPushButton" name="btnRoleWrite">
          <property name="maximumSize">
           <size>
            <width>84</width>
@@ -76,7 +76,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Upload</string>
+          <string>Write</string>
          </property>
         </widget>
        </item>
