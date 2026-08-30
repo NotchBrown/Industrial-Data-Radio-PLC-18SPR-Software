@@ -159,6 +159,13 @@
        <item>
         <widget class="QPushButton" name="btnModemWrite">
          <property name="text">
+          <string>Write</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnModemApply">
+         <property name="text">
           <string>Apply</string>
          </property>
         </widget>
