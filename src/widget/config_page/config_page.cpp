@@ -181,8 +181,14 @@ void ConfigPage::retranslate()
     setConnected(m_connected); // re-apply Connect/Disconnect button text
 }
 
-void ConfigPage::addPage(const QString &group, const QString &leaf, QWidget *page)
+void ConfigPage::addPage(const QString &groupSrc, const QString &leafSrc, QWidget *page)
 {
+    // Translate the English sources for display, but store the ENGLISH sources
+    // in UserRole+1. tr(qPrintable()) of a translated (Chinese) string garbles
+    // when switching back to English on a Chinese locale, because qPrintable()
+    // re-encodes to the local 8-bit codepage (GBK) while tr() expects UTF-8.
+    const QString group = tr(qPrintable(groupSrc));
+    const QString leaf = tr(qPrintable(leafSrc));
     QTreeWidgetItem *top = nullptr;
     for (int i = 0; i < ui->treeIndex->topLevelItemCount(); ++i) {
         QTreeWidgetItem *it = ui->treeIndex->topLevelItem(i);
@@ -194,33 +200,33 @@ void ConfigPage::addPage(const QString &group, const QString &leaf, QWidget *pag
     if (!top) {
         top = new QTreeWidgetItem(ui->treeIndex, QStringList(group));
         top->setFlags(Qt::ItemIsEnabled);
-        top->setData(0, Qt::UserRole + 1, group); // English source for retranslate
+        top->setData(0, Qt::UserRole + 1, groupSrc); // English source for retranslate
     }
     auto *child = new QTreeWidgetItem(top, QStringList(leaf));
     child->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<QWidget *>(page)));
-    child->setData(0, Qt::UserRole + 1, leaf); // English source for retranslate
+    child->setData(0, Qt::UserRole + 1, leafSrc); // English source for retranslate
     ui->stackedPages->addWidget(page);
 }
 
 void ConfigPage::createPages()
 {
-    addPage(tr("System"), tr("MCU ID"), m_pg->mcuIdW);
-    addPage(tr("System"), tr("RTC Clock"), m_pg->rtcW);
-    addPage(tr("System"), tr("Storage"), m_pg->storageW);
-    addPage(tr("Realtime I/O"), tr("Digital DI/DO"), m_pg->digitalW);
-    addPage(tr("Realtime I/O"), tr("Analog AI/AO"), m_pg->analogW);
-    addPage(tr("Network & Role"), tr("Local / Peer Address"), m_pg->addressW);
-    addPage(tr("Network & Role"), tr("Master-Slave Role"), m_pg->roleW);
-    addPage(tr("RF Parameters"), tr("Carrier Frequency"), m_pg->frequencyW);
-    addPage(tr("RF Parameters"), tr("Modulation"), m_pg->modulationW);
-    addPage(tr("RF Parameters"), tr("Power & Preamble"), m_pg->powerW);
+    addPage(QStringLiteral("System"), QStringLiteral("MCU ID"), m_pg->mcuIdW);
+    addPage(QStringLiteral("System"), QStringLiteral("RTC Clock"), m_pg->rtcW);
+    addPage(QStringLiteral("System"), QStringLiteral("Storage"), m_pg->storageW);
+    addPage(QStringLiteral("Realtime I/O"), QStringLiteral("Digital DI/DO"), m_pg->digitalW);
+    addPage(QStringLiteral("Realtime I/O"), QStringLiteral("Analog AI/AO"), m_pg->analogW);
+    addPage(QStringLiteral("Network & Role"), QStringLiteral("Local / Peer Address"), m_pg->addressW);
+    addPage(QStringLiteral("Network & Role"), QStringLiteral("Master-Slave Role"), m_pg->roleW);
+    addPage(QStringLiteral("RF Parameters"), QStringLiteral("Carrier Frequency"), m_pg->frequencyW);
+    addPage(QStringLiteral("RF Parameters"), QStringLiteral("Modulation"), m_pg->modulationW);
+    addPage(QStringLiteral("RF Parameters"), QStringLiteral("Power & Preamble"), m_pg->powerW);
     if (m_isMaster)
-        addPage(tr("Schedule"), tr("Task Table"), m_pg->tasksW);
-    addPage(tr("Schedule"), tr("RS-485 Passthrough"), m_pg->rs485W);
-    addPage(tr("Debug & Statistics"), tr("Counters & Test"), m_pg->countersW);
-    addPage(tr("Debug & Statistics"), tr("RSSI / SNR"), m_pg->rssiW);
-    addPage(tr("Debug & Statistics"), tr("Frequency Calibration"), m_pg->calibrationW);
-    addPage(tr("Register Access"), tr("SX1278 Register"), m_pg->regW);
+        addPage(QStringLiteral("Schedule"), QStringLiteral("Task Table"), m_pg->tasksW);
+    addPage(QStringLiteral("Schedule"), QStringLiteral("RS-485 Passthrough"), m_pg->rs485W);
+    addPage(QStringLiteral("Debug & Statistics"), QStringLiteral("Counters & Test"), m_pg->countersW);
+    addPage(QStringLiteral("Debug & Statistics"), QStringLiteral("RSSI / SNR"), m_pg->rssiW);
+    addPage(QStringLiteral("Debug & Statistics"), QStringLiteral("Frequency Calibration"), m_pg->calibrationW);
+    addPage(QStringLiteral("Register Access"), QStringLiteral("SX1278 Register"), m_pg->regW);
 
     ui->treeIndex->expandAll();
     if (ui->treeIndex->topLevelItemCount() > 0) {
@@ -417,10 +423,9 @@ void ConfigPage::wirePages()
         const QList<QPair<int, QLCDNumber *>> aimA = {
                 {0, m_pg->analog.lcdAi0mA}, {1, m_pg->analog.lcdAi1mA},
                 {2, m_pg->analog.lcdAi2mA}, {3, m_pg->analog.lcdAi3mA}};
-        // AI: column n on the UI shows channel 3-n (reversed, like DI/DO).
+        // AI: column n shows channel n (natural order). AO stays reversed.
         for (int i = 0; i < 4; ++i) {
-            const int ch = 3 - i; // UI column i <- channel ch
-            registerHandler(static_cast<quint8>(Proto::ADDR_AI0 + ch),
+            registerHandler(static_cast<quint8>(Proto::ADDR_AI0 + i),
                             [showAnalog, v = aiV.at(i).second, ma = aimA.at(i).second](
                                     quint8, quint16 data) {
                                 showAnalog(v, ma, data & 0x03FF);
@@ -482,10 +487,10 @@ void ConfigPage::wirePages()
     });
     // ---- Network & Role / Master-Slave Role --------------------------------
     // The role is fixed by the configuration file type (master/slave), so this
-    // page only uploads the chosen role to the device.
+    // page only writes the chosen role to the device.
     m_pg->role.comboRole->setCurrentIndex(m_isMaster ? 1 : 0);
     m_pg->role.comboRole->setEnabled(false);
-    connect(m_pg->role.btnRoleUpload, &QPushButton::clicked, this, [this] {
+    connect(m_pg->role.btnRoleWrite, &QPushButton::clicked, this, [this] {
         sendWrite(Proto::ADDR_ROLE, static_cast<quint16>(m_pg->role.comboRole->currentIndex()));
     });
 
@@ -494,7 +499,8 @@ void ConfigPage::wirePages()
         sendRead(Proto::ADDR_FREQ_LO);
         sendRead(Proto::ADDR_FREQ_HI);
     });
-    connect(m_pg->frequency.btnFreqWrite, &QPushButton::clicked, this, [this] {
+    // Write: store the frequency to the data registers only (pending).
+    const auto writeFreq = [this]() -> bool {
         const bool mhz = m_pg->frequency.comboFreqUnit->currentIndex() == 0;
         const double val = m_pg->frequency.spinFreq->value();
         const quint64 hz = static_cast<quint64>(mhz ? val * 1e6 : val * 1e3);
@@ -502,10 +508,18 @@ void ConfigPage::wirePages()
         // sending a value the chip cannot produce.
         if (hz < 137000000ull || hz > 525000000ull) {
             emit statusMessage(tr("Frequency out of range: 137.000 ~ 525.000 MHz."));
-            return;
+            return false;
         }
         sendWrite(Proto::ADDR_FREQ_LO, static_cast<quint16>(hz & 0xFFFF));
         sendWrite(Proto::ADDR_FREQ_HI, static_cast<quint16>((hz >> 16) & 0xFFFF));
+        return true;
+    };
+    connect(m_pg->frequency.btnFreqWrite, &QPushButton::clicked, this, [writeFreq] { writeFreq(); });
+    // Apply: store the data registers, then trigger 0x29 so the RF bank takes
+    // effect immediately. Self-contained (no prior Write required).
+    connect(m_pg->frequency.btnFreqApply, &QPushButton::clicked, this, [this, writeFreq] {
+        if (writeFreq())
+            sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
     });
     const auto showFrequency = [this] {
         m_pg->frequency.comboFreqUnit->setCurrentIndex(0); // display in MHz
@@ -527,12 +541,19 @@ void ConfigPage::wirePages()
         sendRead(Proto::ADDR_BW);
         sendRead(Proto::ADDR_CR);
     });
-    connect(m_pg->modulation.btnModemWrite, &QPushButton::clicked, this, [this] {
+    // Write: store the modem params to the data registers only (pending).
+    const auto writeModem = [this] {
         static const int bwTable[3] = {125, 250, 500};
         sendWrite(Proto::ADDR_SF, static_cast<quint16>(6 + m_pg->modulation.comboSf->currentIndex()));
         sendWrite(Proto::ADDR_BW,
                   static_cast<quint16>(bwTable[m_pg->modulation.comboBw->currentIndex()]));
         sendWrite(Proto::ADDR_CR, static_cast<quint16>(5 + m_pg->modulation.comboCr->currentIndex()));
+    };
+    connect(m_pg->modulation.btnModemWrite, &QPushButton::clicked, this, [writeModem] { writeModem(); });
+    // Apply: store then trigger 0x29 so the RF bank takes effect immediately.
+    connect(m_pg->modulation.btnModemApply, &QPushButton::clicked, this, [this, writeModem] {
+        writeModem();
+        sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
     });
     registerHandler(Proto::ADDR_SF, [this](quint8, quint16 data) {
         const int sf = qBound(6, static_cast<int>(data & 0xFF), 12);
@@ -576,8 +597,16 @@ void ConfigPage::wirePages()
     });
     // 0x29: re-apply RF params (0x30~0x38) immediately without reboot. UI lives on
     // the Power & Preamble page but applies the whole RF bank.
-    connect(m_pg->power.btnRfApply, &QPushButton::clicked, this,
-            [this] { sendWrite(Proto::ADDR_APPLY_RF, 0x0001); });
+    // Apply: write the power-bank data registers from the current UI values,
+    // then trigger 0x29 so the RF bank takes effect immediately. Self-contained,
+    // so it works even if the user pressed Apply without a prior Write.
+    connect(m_pg->power.btnRfApply, &QPushButton::clicked, this, [this] {
+        sendWrite(Proto::ADDR_POWER, static_cast<quint16>(m_pg->power.spinPower->value()));
+        sendWrite(Proto::ADDR_PREAMBLE, static_cast<quint16>(m_pg->power.spinPreamble->value()));
+        sendWrite(Proto::ADDR_SYNCWORD, static_cast<quint16>(m_pg->power.spinSyncword->value()));
+        sendWrite(Proto::ADDR_LNA, static_cast<quint16>(m_pg->power.spinLna->value()));
+        sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
+    });
     registerHandler(Proto::ADDR_APPLY_RF, [this](quint8 head, quint16) {
         if (head == Proto::HEAD_WRITE)
             emit statusMessage(tr("RF configuration applied (0x29)."));
@@ -1012,8 +1041,8 @@ void ConfigPage::wirePages()
                     sendWrite(static_cast<quint8>(Proto::ADDR_REG_BASE | (row & 0x1F)),
                               static_cast<quint16>(v & 0xFF));
                 });
-        // Upload: write the selected row's Write Value (hex validated).
-        connect(m_pg->regPage.btnRegUpload, &QPushButton::clicked, this,
+        // Write: write the selected row's Write Value (hex validated).
+        connect(m_pg->regPage.btnRegWrite, &QPushButton::clicked, this,
                 [this, t, validateWriteValue] {
                     const int row = t->currentRow();
                     if (row < 0) {
@@ -1029,8 +1058,8 @@ void ConfigPage::wirePages()
                     sendWrite(static_cast<quint8>(Proto::ADDR_REG_BASE | (row & 0x1F)),
                               static_cast<quint16>(v & 0xFF));
                 });
-        // Upload All: write every row's Write Value (hex validated).
-        connect(m_pg->regPage.btnRegUploadAll, &QPushButton::clicked, this,
+        // Write All: write every row's Write Value (hex validated).
+        connect(m_pg->regPage.btnRegWriteAll, &QPushButton::clicked, this,
                 [this, t, validateWriteValue] {
                     for (int r = 0; r < 32; ++r) {
                         if (!validateWriteValue(r)) {
@@ -1043,7 +1072,7 @@ void ConfigPage::wirePages()
                         sendWrite(static_cast<quint8>(Proto::ADDR_REG_BASE | (r & 0x1F)),
                                   static_cast<quint16>(v & 0xFF));
                     }
-                    emit statusMessage(tr("Uploading all register values..."));
+                    emit statusMessage(tr("Writing all register values..."));
                 });
     }
 }
