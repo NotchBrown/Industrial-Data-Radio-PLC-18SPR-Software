@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>IDR Configurator</DisplayName>
+    <Description>Industrial wireless data radio configuration tool (Qt5, Windows).</Description>
+    <Version>0.0.2-1</Version>
+    <ReleaseDate>2026-08-30</ReleaseDate>
+    <Default>true</Default>
+    <Script>installscript.qs</Script>
+    <UserInterfaces>
+        <UserInterface>shortcutpage.ui</UserInterface>
+    </UserInterfaces>
+    <Licenses>
+        <License name="GNU General Public License v3" file="license-gpl3.txt" />
+        <License name="Qt 5.14.2 - GNU LGPL v3" file="license-qt.txt" />
+        <License name="Source Han Sans Font - SIL OFL 1.1" file="license-font.txt" />
+    </Licenses>
+</Package>

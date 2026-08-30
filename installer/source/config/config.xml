@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>IDR Configurator</Name>
+    <Version>0.0.2</Version>
+    <Title>IDR Configurator</Title>
+    <Publisher>LCU-Phys-GZB-RSJ</Publisher>
+    <ProductUrl>https://github.com/NotchBrown/Industrial-Data-Radio-PLC-18SPR-Software</ProductUrl>
+    <StartMenuDir>IDR Configurator</StartMenuDir>
+    <!-- Default install path (user-selectable on the target directory page). -->
+    <TargetDir>@HomeDir@/IDRConfigurator</TargetDir>
+    <MaintenanceToolName>maintenancetool</MaintenanceToolName>
+    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>
+    <!-- Installer application icon, must exist as source/config/druppc_setup.ico (copied by build script). -->
+    <InstallerApplicationIcon>druppc_setup</InstallerApplicationIcon>
+    <!-- Offline-only single component; hide online/repository pages. -->
+    <RepositorySettingsPageVisible>false</RepositorySettingsPageVisible>
+</Installer>
