@@ -433,12 +433,12 @@
     </message>
     <message>
       <source>At least one task is required.</source>
-      <translation>At least one task is required.</translation>
+      <translation>至少需要 1 个任务。</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="725" />
-      <source>Select a task row to remove.</source>
-      <translation>Select a task row to remove.</translation>
+      <source>Select a task row to delete.</source>
+      <translation>请选择要删除的任务行。</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="755" />
@@ -524,12 +524,12 @@
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="745" />
       <source>At least one task is required before applying.</source>
-      <translation>At least one task is required before applying.</translation>
+      <translation>应用前至少需要 1 个任务。</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="763" />
-      <source>Task %1: interval must be a positive time in ms.</source>
-      <translation>Task %1: interval must be a positive time in ms.</translation>
+      <source>Task %1: interval must be at least 1/6 ms.</source>
+      <translation>任务 %1：间隔必须至少为 1/6 毫秒。</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="768" />
@@ -539,7 +539,7 @@
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="779" />
       <source>Applying task table...</source>
-      <translation>Applying task table...</translation>
+      <translation>正在应用任务表...</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="881" />
@@ -1662,12 +1662,17 @@
       <translation>增加</translation>
     </message>
     <message>
-      <location filename="../../widget/config_page/pages/task_table_page.ui" line="310" />
-      <source>Remove</source>
+      <location filename="../../widget/config_page/pages/task_table_page.ui" line="316" />
+      <source>Delete</source>
       <translation>删除</translation>
     </message>
     <message>
-      <location filename="../../widget/config_page/pages/task_table_page.ui" line="323" />
+      <location filename="../../widget/config_page/pages/task_table_page.ui" line="329" />
+      <source>Read</source>
+      <translation>读取</translation>
+    </message>
+    <message>
+      <location filename="../../widget/config_page/pages/task_table_page.ui" line="342" />
       <source>Apply</source>
       <translation>应用</translation>
     </message>
@@ -1689,20 +1694,6 @@
       <location filename="../../widget/config_page/pages/task_table_page.ui" line="196" />
       <source>Request return (CI2)</source>
       <translation>要求回传 (CI2)</translation>
-    </message>
-    <message>
-      <source>Apply to Row</source>
-      <translation>应用到行</translation>
-    </message>
-    <message>
-      <location filename="../../widget/config_page/pages/task_table_page.ui" line="336" />
-      <source>Read All</source>
-      <translation>全部读取</translation>
-    </message>
-    <message>
-      <location filename="../../widget/config_page/pages/task_table_page.ui" line="349" />
-      <source>Apply All</source>
-      <translation>全部应用</translation>
     </message>
     <message>
       <source>Hint: Name is a local label stored in the .iml file only (not written). CI1 = content the master sends; CI2 = content requested back from the slave. Bits: D15-8, D7-0, A3..A0, word size (10/8-bit), A-law companding. Interval is in ms (converted to the 166.7us TIM4 tick internally, max ~10.9 s). EEPROM items persist only after Storage &gt; Save.</source>
