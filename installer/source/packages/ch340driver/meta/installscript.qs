@@ -35,12 +35,13 @@ Component.prototype.createOperations = function()
 
     var ui = component.userInterface("DriverPage");
     if (ui && ui.ch340DriverBox && ui.ch340DriverBox.checked) {
-        // Absolute, quoted INF path via cmd.exe /C. @TargetDir@ is substituted
-        // by QtIFW into operation arguments; the quotes protect against spaces
-        // in the install path (e.g. "C:\Program Files\..."). No workingDirectory
-        // parameter is used: its value is not reliably substituted and broke the
-        // process start with ERROR_DIRECTORY ("目录名称无效").
+        // Run the bundled install_driver.bat (which pnputils the INF from its
+        // own directory via %~dp0). QtIFW's elevated "Execute" wraps the whole
+        // argument string in quotes, which corrupts commands that contain their
+        // own quotes or multiple parameters. A .bat avoids every quoting issue:
+        // @TargetDir@ is substituted by QtIFW and, for the default no-space
+        // install path, the wrapped argument is parsed correctly by cmd.
         component.addElevatedOperation("Execute", "cmd.exe", "/C",
-            'pnputil.exe /add-driver "@TargetDir@/components/ch340driver/CH341SER.INF" /install');
+            "@TargetDir@/components/ch340driver/install_driver.bat");
     }
 };
