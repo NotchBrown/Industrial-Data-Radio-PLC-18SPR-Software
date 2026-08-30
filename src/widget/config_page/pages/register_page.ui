@@ -93,7 +93,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnRegUpload">
+      <widget class="QPushButton" name="btnRegWrite">
        <property name="maximumSize">
         <size>
          <width>84</width>
@@ -101,12 +101,12 @@
         </size>
        </property>
        <property name="text">
-        <string>Upload</string>
+        <string>Write</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnRegUploadAll">
+      <widget class="QPushButton" name="btnRegWriteAll">
        <property name="maximumSize">
         <size>
          <width>84</width>
@@ -114,7 +114,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Upload All</string>
+        <string>Write All</string>
        </property>
       </widget>
      </item>
