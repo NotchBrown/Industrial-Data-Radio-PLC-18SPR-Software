@@ -26,7 +26,7 @@ $stamp   = Get-Date -Format "yyyyMMdd_HHmmss"
 $DistDir = Join-Path $ProjectDir "dist\$stamp"
 New-Item -ItemType Directory -Force -Path $DistDir | Out-Null
 
-Copy-Item (Join-Path $BuildDir "release\DRUPPC.exe") $DistDir
+Copy-Item (Join-Path $BuildDir "release\IDRConfigurator.exe") $DistDir
 
 # Qt/MinGW runtime dlls (32-bit gcc runtime has a different name)
 $Dlls = @("Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll", "Qt5SerialPort.dll", "Qt5Xml.dll", "libgcc_s_dw2-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll")
