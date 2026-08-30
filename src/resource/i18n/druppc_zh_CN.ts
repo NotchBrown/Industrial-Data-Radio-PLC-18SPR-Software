@@ -1,36 +1,32 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS[]>
 <TS version="2.1" language="zh_CN">
   <context>
     <name>AboutDialog</name>
     <message>
       <location filename="../../widget/about/about.ui" line="14" />
-      <source>关于 DRUPPC</source>
-      <translation>关于 DRUPPC</translation>
+      <source>About IDR Configurator</source>
+      <translation>关于 IDR Configurator</translation>
     </message>
     <message>
-      <location filename="../../widget/about/about.ui" line="43" />
-      <source>DRUPPC 数传电台配置工具</source>
-      <translation>DRUPPC 数传电台配置工具</translation>
+      <location filename="../../widget/about/about.ui" line="44" />
+      <source>IDR Configurator</source>
+      <translation>IDR Configurator</translation>
     </message>
     <message>
-      <location filename="../../widget/about/about.ui" line="53" />
-      <source>版本 0.1.0</source>
-      <translation>版本 0.1.0</translation>
+      <location filename="../../widget/about/about.ui" line="56" />
+      <source>Version 0.0.2</source>
+      <translation>版本 0.0.2</translation>
     </message>
     <message>
-      <location filename="../../widget/about/about.ui" line="63" />
-      <source>工业无线数传电台（PLC-18SPR-32080001）上位机配置工具。
-通过 UART3（CH340N，115200 8N1）读写设备参数，
-支持主站 / 从站配置文件的编辑与管理。</source>
-      <translation>工业无线数传电台（PLC-18SPR-32080001）上位机配置工具。
-通过 UART3（CH340N，115200 8N1）读写设备参数，
-支持主站 / 从站配置文件的编辑与管理。</translation>
+      <location filename="../../widget/about/about.ui" line="66" />
+      <source>Industrial wireless data radio configuration tool</source>
+      <translation>工业无线数传电台配置工具</translation>
     </message>
     <message>
       <location filename="../../widget/about/about.cpp" line="17" />
       <source>Version %1</source>
-      <translation>Version %1</translation>
+      <translation>版本 %1</translation>
     </message>
   </context>
   <context>
@@ -104,8 +100,8 @@
     </message>
     <message>
       <location filename="../../widget/config_page/pages/analog_page.ui" line="22" />
-      <source>Analog Inputs AI0~AI3 (0-10 V / 0-20 mA)</source>
-      <translation>模拟输入 AI0~AI3（0-10 V / 0-20 mA）</translation>
+      <source>Analog Inputs AI0~AI3</source>
+      <translation>模拟输入 AI0~AI3</translation>
     </message>
     <message>
       <source>Analog Outputs AO0~AO3 (0-10 V / 0-20 mA)</source>
@@ -174,8 +170,8 @@
     </message>
     <message>
       <location filename="../../widget/config_page/pages/analog_page.ui" line="61" />
-      <source>Analog Outputs AO0~AO3 (Read = from radio, Write = pending)</source>
-      <translation>模拟输出 AO0~AO3（读取=来自电台，写入=待定）</translation>
+      <source>Analog Outputs AO0~AO3</source>
+      <translation>模拟输出 AO0~AO3</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/pages/analog_page.ui" line="73" />
@@ -467,8 +463,8 @@
     </message>
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="1022" />
-      <source>Uploading all register values...</source>
-      <translation>Uploading all register values...</translation>
+      <source>Writing all register values...</source>
+      <translation>正在写入全部寄存器值...</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/config_page.cpp" line="1185" />
@@ -844,6 +840,11 @@
     </message>
     <message>
       <location filename="../../widget/config_page/pages/frequency_page.ui" line="97" />
+      <source>Write</source>
+      <translation>写入</translation>
+    </message>
+    <message>
+      <location filename="../../widget/config_page/pages/frequency_page.ui" line="104" />
       <source>Apply</source>
       <translation>应用</translation>
     </message>
@@ -856,8 +857,8 @@
     <name>MainWindow</name>
     <message>
       <location filename="../../widget/main_window/main_window.ui" line="14" />
-      <source>DRUPPC - Data Radio Configuration Tool</source>
-      <translation>DRUPPC - Data Radio Configuration Tool</translation>
+      <source>IDR Configurator - Data Radio Configuration Tool</source>
+      <translation>IDR Configurator - 数传电台配置工具</translation>
     </message>
     <message>
       <location filename="../../widget/main_window/main_window.ui" line="56" />
@@ -1180,6 +1181,11 @@
     </message>
     <message>
       <location filename="../../widget/config_page/pages/modulation_page.ui" line="162" />
+      <source>Write</source>
+      <translation>写入</translation>
+    </message>
+    <message>
+      <location filename="../../widget/config_page/pages/modulation_page.ui" line="169" />
       <source>Apply</source>
       <translation>应用</translation>
     </message>
@@ -1222,8 +1228,8 @@
     </message>
     <message>
       <location filename="../../widget/config_page/pages/power_page.ui" line="135" />
-      <source>Upload</source>
-      <translation>上传</translation>
+      <source>Write</source>
+      <translation>写入</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/pages/power_page.ui" line="142" />
@@ -1280,9 +1286,14 @@
       <translation>读取</translation>
     </message>
     <message>
-      <location filename="../../widget/config_page/pages/register_page.ui" line="91" />
-      <source>Upload</source>
-      <translation>上传</translation>
+      <location filename="../../widget/config_page/pages/register_page.ui" line="104" />
+      <source>Write</source>
+      <translation>写入</translation>
+    </message>
+    <message>
+      <location filename="../../widget/config_page/pages/register_page.ui" line="117" />
+      <source>Write All</source>
+      <translation>全部写入</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/pages/register_page.ui" line="104" />
@@ -1306,28 +1317,23 @@
     <name>RolePage</name>
     <message>
       <location filename="../../widget/config_page/pages/role_page.ui" line="37" />
-      <source>Master-Slave Role (0x19)</source>
-      <translation>主从角色 (0x19)</translation>
+      <source>Master-Slave Role</source>
+      <translation>主从角色</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/pages/role_page.ui" line="45" />
-      <source>Slave (replies to master frames as requested)</source>
-      <translation>从站（按主站要求回传）</translation>
+      <source>Slave</source>
+      <translation>从站</translation>
     </message>
     <message>
       <location filename="../../widget/config_page/pages/role_page.ui" line="50" />
-      <source>Master (periodic TX per task table)</source>
-      <translation>主站（按任务表周期发送）</translation>
+      <source>Master</source>
+      <translation>主站</translation>
     </message>
     <message>
-      <location filename="../../widget/config_page/pages/role_page.ui" line="73" />
-      <source>Read</source>
-      <translation>读取</translation>
-    </message>
-    <message>
-      <location filename="../../widget/config_page/pages/role_page.ui" line="80" />
-      <source>Apply</source>
-      <translation>应用</translation>
+      <location filename="../../widget/config_page/pages/role_page.ui" line="79" />
+      <source>Write</source>
+      <translation>写入</translation>
     </message>
     <message>
       <source>Hint: stored in EEPROM; use Storage to save after write.</source>
