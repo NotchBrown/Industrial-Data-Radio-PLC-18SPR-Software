@@ -66,12 +66,19 @@ function Get-ExeArch([string]$exe) {
     }
 }
 
-# ---- driver files per architecture (INF is identical for both, CAT is shared) ----
-$CommonDrv = @("CH341SER.INF", "CH341SER.CAT")
-$DrvFiles = @{
-    x64 = @($CommonDrv + "CH341S64.SYS", "CH341PTA64.DLL", "CH341PORTSA64.DLL", "CH341PT.DLL")
-    x86 = @($CommonDrv + "CH341SER.SYS", "CH341PT.DLL", "CH341PORTS.DLL")
-}
+# ---- driver files ----
+# pnputil validates that EVERY file listed in the INF's [SourceDisksFiles] is
+# present, otherwise the package is rejected ("invalid driver package", exit 3).
+# Both architectures share the same INF, so ship the complete small (~300 KB)
+# file set for every installer; the total is negligible next to the setup size.
+$DrvFiles = @(
+    "CH341SER.INF", "CH341SER.CAT",
+    "CH341SER.SYS",        # x86 WDM driver
+    "CH341S64.SYS",        # x64 WDM driver
+    "CH341M64.SYS",        # ARM64 WDM driver
+    "CH341PT.DLL", "CH341PORTS.DLL",        # x86
+    "CH341PTA64.DLL", "CH341PORTSA64.DLL"   # x64
+)
 
 $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 
@@ -96,10 +103,10 @@ foreach ($a in $arches) {
     New-Item -ItemType Directory -Force -Path $AppDataDir | Out-Null
     Copy-Item (Join-Path $LatestDist.FullName "*") $AppDataDir -Recurse
 
-    # ---- stage the architecture-matched driver package data ----
+    # ---- stage the driver package data (complete INF file set, shared by both) ----
     Remove-Item -Recurse -Force $DrvDataDir -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Force -Path $DrvDataDir | Out-Null
-    foreach ($f in $DrvFiles[$a]) {
+    foreach ($f in $DrvFiles) {
         $src = Join-Path $DrvSrcDir $f
         if (-not (Test-Path $src)) { throw "Missing driver file: $src" }
         Copy-Item $src $DrvDataDir
