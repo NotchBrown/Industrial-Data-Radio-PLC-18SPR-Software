@@ -109,8 +109,14 @@
          <property name="decimals">
           <number>2</number>
          </property>
+         <property name="minimum">
+          <double>0.170000000000000</double>
+         </property>
          <property name="maximum">
           <double>10922.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.170000000000000</double>
          </property>
         </widget>
        </item>
@@ -299,7 +305,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnTaskRemove">
+        <widget class="QPushButton" name="btnTaskDelete">
          <property name="maximumSize">
           <size>
            <width>84</width>
@@ -307,12 +313,25 @@
           </size>
          </property>
          <property name="text">
-          <string>Remove</string>
+          <string>Delete</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnTaskRowApply">
+        <widget class="QPushButton" name="btnTaskRead">
+         <property name="maximumSize">
+          <size>
+           <width>84</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Read</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnTaskApply">
          <property name="maximumSize">
           <size>
            <width>84</width>
@@ -321,32 +340,6 @@
          </property>
          <property name="text">
           <string>Apply</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnTasksRead">
-         <property name="maximumSize">
-          <size>
-           <width>84</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Read All</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnTasksWrite">
-         <property name="maximumSize">
-          <size>
-           <width>84</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Apply All</string>
          </property>
         </widget>
        </item>
