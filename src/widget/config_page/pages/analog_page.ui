@@ -19,7 +19,7 @@
    <item>
     <widget class="QLabel" name="lblAiTitle">
      <property name="text">
-      <string>Analog Inputs AI0~AI3 (0-10 V / 0-20 mA)</string>
+      <string>Analog Inputs AI0~AI3</string>
      </property>
     </widget>
    </item>
@@ -58,7 +58,7 @@
    <item>
     <widget class="QLabel" name="lblAoTitle">
      <property name="text">
-      <string>Analog Outputs AO0~AO3 (Read = from radio, Write = pending)</string>
+      <string>Analog Outputs AO0~AO3</string>
      </property>
     </widget>
    </item>
