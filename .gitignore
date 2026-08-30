@@ -9,6 +9,8 @@ installer/source/packages/*/meta/license-*.txt
 # WCH CH340 driver binaries are download-only (must not be committed)
 installer/other/driver/*
 !installer/other/driver/install_driver.bat
+# Microsoft KB3033929 (SHA-2 patch) .msu packages are download-only
+installer/other/KB3033929/
 # Installer icon copied from src/resource/icon/main.ico by the installer build script
 installer/source/config/druppc_setup.ico
 # Large font binaries are shipped outside the repo
