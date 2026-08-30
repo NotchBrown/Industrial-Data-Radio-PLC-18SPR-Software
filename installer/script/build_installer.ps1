@@ -1,12 +1,21 @@
-# build_installer.ps1 - build the DRUPPC offline installer with Qt Installer Framework
-# Usage: powershell -NoProfile -ExecutionPolicy Bypass -File installer\script\build_installer.ps1
-# Output: installer\dist\DRUPPC_Setup_<datetime>.exe
+# build_installer.ps1 - build the IDR Configurator offline installers with Qt IFW
+# Usage:
+#   powershell -NoProfile -ExecutionPolicy Bypass -File installer\script\build_installer.ps1
+#   powershell ... build_installer.ps1 -Arch x64
+#   powershell ... build_installer.ps1 -Arch x86
+#   powershell ... build_installer.ps1 -Arch both      (default)
+# Output: installer\dist\IDRConfigurator_Setup_<arch>_<datetime>.exe
 #
 # Everything installer-related lives under installer/:
-#   installer/script    this script
-#   installer/source    QtIFW project (config/, packages/)
-#   installer/dist      generated setup executables
-#   installer/other     license texts, icons and other assets
+#   installer/script     this script
+#   installer/source     QtIFW project (config/, packages/)
+#   installer/dist       generated setup executables
+#   installer/other      license texts, driver and other assets
+
+param(
+    [ValidateSet("x64", "x86", "both")]
+    [string]$Arch = "both"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -15,38 +24,89 @@ $Installer = Split-Path -Parent $PSScriptRoot      # .../installer
 $AppRoot   = Split-Path -Parent $Installer         # .../DRUPPC
 $Source    = Join-Path $Installer "source"
 $Packages  = Join-Path $Source "packages"
-$MetaDir   = Join-Path $Packages "druppc\meta"
-$DataDir   = Join-Path $Packages "druppc\data"
-
-# ---- pick the newest application build to package ----
-$LatestDist = Get-ChildItem (Join-Path $AppRoot "dist") -Directory |
-    Sort-Object Name -Descending | Select-Object -First 1
-if (-not $LatestDist) {
-    throw "No application build found under $AppRoot\dist; run script\build_mingw64.ps1 first."
-}
-Write-Host "Packaging: $($LatestDist.FullName)"
-
-# ---- stage the package data directory ----
-Remove-Item -Recurse -Force $DataDir -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path $DataDir | Out-Null
-Copy-Item (Join-Path $LatestDist.FullName "*") $DataDir -Recurse
-
-# ---- refresh license texts and installer icon ----
-Copy-Item (Join-Path $Installer "other\license\*") $MetaDir -Force
-Copy-Item (Join-Path $AppRoot "src\resource\icon\main.ico") `
-    (Join-Path $Source "config\druppc_setup.ico") -Force
-
-# ---- run binarycreator (offline installer) ----
-$stamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$OutDir = Join-Path $Installer "dist"
+$AppMetaDir   = Join-Path $Packages "druppc\meta"
+$AppDataDir   = Join-Path $Packages "druppc\data"
+$DrvMetaDir   = Join-Path $Packages "ch340driver\meta"
+$DrvDataDir   = Join-Path $Packages "ch340driver\data"
+$DrvSrcDir    = Join-Path $Installer "other\driver\CH341SER"
+$OutDir       = Join-Path $Installer "dist"
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
-$Setup = Join-Path $OutDir "IDRConfigurator_Setup_$stamp.exe"
 
-& "$QtIFW\bin\binarycreator.exe" --offline-only `
-    -c (Join-Path $Source "config\config.xml") `
-    -p $Packages `
-    $Setup
-if ($LASTEXITCODE -ne 0) { throw "binarycreator failed" }
+# ---- detect an EXE's machine architecture from its PE header ----
+# x64 -> 0x8664, x86 -> 0x014c
+function Get-ExeArch([string]$exe) {
+    $fs = [System.IO.File]::OpenRead($exe)
+    try {
+        $buf = New-Object byte[] 1024
+        $fs.Read($buf, 0, $buf.Length) | Out-Null
+        # e_lfanew at 0x3C
+        $pe = [BitConverter]::ToInt32($buf, 0x3C)
+        $machine = [BitConverter]::ToUInt16($buf, $pe + 4)
+        if ($machine -eq 0x8664) { return "x64" }
+        if ($machine -eq 0x014c) { return "x86" }
+        return "unknown"
+    } finally {
+        $fs.Dispose()
+    }
+}
 
-Write-Host ""
-Write-Host "OK -> $Setup"
+# ---- driver files per architecture (INF is identical for both, CAT is shared) ----
+$CommonDrv = @("CH341SER.INF", "CH341SER.CAT")
+$DrvFiles = @{
+    x64 = @($CommonDrv + "CH341S64.SYS", "CH341PTA64.DLL", "CH341PORTSA64.DLL", "CH341PT.DLL")
+    x86 = @($CommonDrv + "CH341SER.SYS", "CH341PT.DLL", "CH341PORTS.DLL")
+}
+
+$stamp = Get-Date -Format "yyyyMMdd_HHmmss"
+
+$arches = if ($Arch -eq "both") { @("x64", "x86") } else { @($Arch) }
+
+foreach ($a in $arches) {
+
+    # ---- pick the newest application build for THIS architecture ----
+    $LatestDist = Get-ChildItem (Join-Path $AppRoot "dist") -Directory |
+        Sort-Object Name -Descending |
+        Where-Object { (Test-Path (Join-Path $_.FullName "IDRConfigurator.exe")) -and
+                       (Get-ExeArch (Join-Path $_.FullName "IDRConfigurator.exe")) -eq $a } |
+        Select-Object -First 1
+    if (-not $LatestDist) {
+        Write-Warning "No $a application build found; skipping."
+        continue
+    }
+    Write-Host "Packaging $a app: $($LatestDist.Name)"
+
+    # ---- stage the application package data ----
+    Remove-Item -Recurse -Force $AppDataDir -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force -Path $AppDataDir | Out-Null
+    Copy-Item (Join-Path $LatestDist.FullName "*") $AppDataDir -Recurse
+
+    # ---- stage the architecture-matched driver package data ----
+    Remove-Item -Recurse -Force $DrvDataDir -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force -Path $DrvDataDir | Out-Null
+    foreach ($f in $DrvFiles[$a]) {
+        $src = Join-Path $DrvSrcDir $f
+        if (-not (Test-Path $src)) { throw "Missing driver file: $src" }
+        Copy-Item $src $DrvDataDir
+    }
+
+    # ---- refresh licenses and installer icon ----
+    foreach ($lic in @("license-gpl3.txt", "license-qt.txt", "license-font.txt")) {
+        Copy-Item (Join-Path $Installer "other\license\$lic") $AppMetaDir -Force
+    }
+    Copy-Item (Join-Path $Installer "other\license\license-driver.txt") $DrvMetaDir -Force
+    Copy-Item (Join-Path $AppRoot "src\resource\icon\main.ico") `
+        (Join-Path $Source "config\druppc_setup.ico") -Force
+
+    # ---- run binarycreator (offline installer) ----
+    $Setup = Join-Path $OutDir "IDRConfigurator_Setup_${a}_$stamp.exe"
+    & "$QtIFW\bin\binarycreator.exe" --offline-only `
+        -c (Join-Path $Source "config\config.xml") `
+        -p $Packages `
+        $Setup
+    if ($LASTEXITCODE -ne 0) { throw "binarycreator failed for $a" }
+
+    Write-Host "OK -> $Setup"
+    Write-Host ""
+}
+
+Write-Host "All requested installers generated under $OutDir"
