@@ -41,13 +41,6 @@ Component.prototype.createOperationsForArchive = function(archive)
     component.addOperation("Extract", archive, "@TargetDir@/ch340driver");
 };
 
-function isWindows7()
-{
-    var os = systemInfo.osVersion().toString();
-    // Windows 7 = OS build 6.1; 8/8.1=6.2/6.3, 10/11=10. Only 6.1 matches.
-    return os.indexOf("6.1") === 0;
-}
-
 Component.prototype.createOperations = function()
 {
     component.createOperations();
@@ -55,20 +48,13 @@ Component.prototype.createOperations = function()
     if (installer.isUninstaller())
         return;
 
+    // install_driver.bat auto-detects the situation: it silently installs the
+    // Windows 7 SHA-2 patch only when needed (Win7 without KB3033929), otherwise
+    // (incl. all other OS versions) it imports the CH340 driver. Run whenever
+    // the user wants the driver installed.
     var ui = component.userInterface("DriverPage");
-    var wantDriver = ui && ui.ch340DriverBox && ui.ch340DriverBox.checked;
-    var wantPatch  = ui && ui.checkPatchBox  && ui.checkPatchBox.checked;
-
-    // --- Windows 7: install the SHA-2 patch if requested (needs restart). ---
-    if (isWindows7() && wantPatch) {
+    if (ui && ui.ch340DriverBox && ui.ch340DriverBox.checked) {
         component.addOperation("Execute", "cmd.exe", "/C",
-            "@TargetDir@/ch340driver/install_driver.bat --patch");
-        return; // defer driver until after the required restart
-    }
-
-    // --- all other cases: install the driver directly. ---
-    if (wantDriver) {
-        component.addOperation("Execute", "cmd.exe", "/C",
-            "@TargetDir@/ch340driver/install_driver.bat --driver");
+            "@TargetDir@/ch340driver/install_driver.bat");
     }
 };

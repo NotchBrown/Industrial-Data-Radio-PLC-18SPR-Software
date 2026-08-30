@@ -35,26 +35,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkPatchBox">
-     <property name="text">
-      <string>Install Windows 7 SHA-2 support update (KB3033929)</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="lblPatch">
-     <property name="text">
-      <string>Only applied on Windows 7 that lacks SHA-2 patch support; it needs a restart before the driver can be installed.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
