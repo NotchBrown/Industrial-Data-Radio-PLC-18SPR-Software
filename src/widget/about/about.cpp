@@ -2,9 +2,8 @@
 #include "ui_about.h"
 
 #include <QCoreApplication>
-#include <QFile>
+#include <QIcon>
 #include <QLayout>
-#include <QPixmap>
 
 AboutDialog::AboutDialog(QWidget *parent)
     : QDialog(parent)
@@ -16,10 +15,16 @@ AboutDialog::AboutDialog(QWidget *parent)
 
     ui->lblVersion->setText(tr("Version %1").arg(QCoreApplication::applicationVersion()));
 
-    const QString iconPath = QCoreApplication::applicationDirPath() + "/resource/icon/main.ico";
-    if (QFile::exists(iconPath)) {
-        ui->lblIcon->setPixmap(
-                QPixmap(iconPath).scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    // Show the app icon (QLabel + title bar). Fall back to the application
+    // window icon (also loaded from resource/icon/main.ico in main.cpp).
+    const QString iconPath =
+            QCoreApplication::applicationDirPath() + "/resource/icon/main.ico";
+    QIcon appIcon = QIcon(iconPath);
+    if (appIcon.isNull())
+        appIcon = QApplication::windowIcon();
+    if (!appIcon.isNull()) {
+        ui->lblIcon->setPixmap(appIcon.pixmap(48, 48));
+        setWindowIcon(appIcon);
     }
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
