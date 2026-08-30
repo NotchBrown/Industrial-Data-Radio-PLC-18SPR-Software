@@ -56,16 +56,6 @@
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="lblHint">
-     <property name="text">
-      <string>Applied to request-reply communication. A request is retried up to this count before reporting failure. The 0x1E save command waits the full timeout.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
