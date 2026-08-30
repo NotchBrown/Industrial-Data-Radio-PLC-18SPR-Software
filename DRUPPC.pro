@@ -1,9 +1,9 @@
 QT += core gui widgets serialport xml
 
 CONFIG += c++14
-TARGET = DRUPPC
+TARGET = IDRConfigurator
 TEMPLATE = app
-VERSION = 0.1.0
+VERSION = 0.0.2
 
 # exe file icon (only the .ico; all other resources stay external)
 RC_FILE = src/resource/icon/druppc.rc
