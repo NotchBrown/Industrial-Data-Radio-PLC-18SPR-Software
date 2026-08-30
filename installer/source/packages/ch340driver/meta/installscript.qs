@@ -1,15 +1,20 @@
 /****************************************************************************
 ** IDR Configurator - CH340 driver component script.
 ** Adds a "CH340 Driver" wizard page with an install checkbox. When checked,
-** the bundled (complete, unmodified) WCH driver is registered with pnputil
-** using an elevated (UAC-prompted) operation.
+** the bundled (complete, unmodified) WCH driver is installed with pnputil.
 **
-** Robustness notes:
-** - QtIFW's "Execute" operation builds the command line itself and has known
-**   quoting quirks, so we run via "cmd.exe /C" with the INF referenced by a
-**   RELATIVE filename. The working directory (which may contain spaces, e.g.
-**   "C:\Program Files\...") is set through the "workingDirectory=" parameter,
-**   which QProcess handles natively without shell quoting issues.
+** Path strategy (QtIFW best practice, see the "modify extract" example):
+** The component's data is explicitly extracted to the fixed, well-known
+** location "@TargetDir@/ch340driver" via createOperationsForArchive() instead
+** of relying on QtIFW's default components/<name> extraction path. Both the
+** extract target and the executed batch file use the same path, so the driver
+** files and install_driver.bat are always found together.
+**
+** Privilege strategy:
+** The batch runs at NORMAL privilege (addOperation, not addElevatedOperation,
+** which has QtIFW quoting bugs and an unexpected %TEMP% context). Inside the
+** batch, pnputil is launched with Start-Process -Verb RunAs, requesting a
+** single UAC elevation prompt just for the driver install.
 ****************************************************************************/
 
 function Component()
@@ -25,9 +30,17 @@ Component.prototype.installerLoaded = function()
     installer.addWizardPage(component, "DriverPage", QInstaller.ReadyForInstallation);
 };
 
+// Extract this component's data to a fixed path instead of QtIFW's default
+// @TargetDir@/components/<name> so the batch script always finds the driver.
+Component.prototype.createOperationsForArchive = function(archive)
+{
+    component.addOperation("Extract", archive, "@TargetDir@/ch340driver");
+};
+
 Component.prototype.createOperations = function()
 {
-    // Extract this component's data directory (the complete INF file set).
+    // Creates the default operations; createOperationsForArchive() above
+    // redirects the data extraction to "@TargetDir@/ch340driver".
     component.createOperations();
 
     if (installer.isUninstaller())
@@ -35,13 +48,8 @@ Component.prototype.createOperations = function()
 
     var ui = component.userInterface("DriverPage");
     if (ui && ui.ch340DriverBox && ui.ch340DriverBox.checked) {
-        // Run the bundled install_driver.bat at NORMAL (non-elevated) privilege.
-        // The bat internally launches pnputil with Start-Process -Verb RunAs to
-        // request a UAC elevation prompt just for the driver install. Running the
-        // bat non-elevated keeps %TEMP% as the user's temp (so the diagnostic log
-        // is where the user can find it) and avoids the elevated-Execute quoting
-        // and working-directory bugs of QtIFW.
+        // Run the wrapper batch at normal privilege; it elevates pnputil itself.
         component.addOperation("Execute", "cmd.exe", "/C",
-            "@TargetDir@/components/ch340driver/install_driver.bat");
+            "@TargetDir@/ch340driver/install_driver.bat");
     }
 };
