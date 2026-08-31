@@ -1,21 +1,18 @@
 @echo off
 setlocal
-rem IDR Configurator - CH340 driver / Windows 7 SHA-2 patch wrapper (auto-detect).
-rem The installer is elevated up front (installer.gainAdminRights in installscript),
-rem so pnputil / wusa are called DIRECTLY here - no nested Start-Process -Verb RunAs
-rem (which is unreliable and hangs on some Windows 7 machines with "access denied").
+rem IDR Configurator - CH340 driver wrapper.
+rem The installer is elevated up front (installer.gainAdminRights), so we call
+rem pnputil directly - no nested RunAs, which is unreliable on Windows 7.
 rem
-rem Automatic decision:
-rem   * Windows 7 (6.1) that LACKS SHA-2 support (KB3033929/KB4474419 absent):
-rem       -> silently install the bundled KB3033929, then ask for a restart and
-rem          exit cleanly. The driver needs the reboot, so it is installed on
-rem          the NEXT run.
-rem   * Windows 7 already patched, OR any other OS (8/8.1/10/11):
-rem       -> import the CH340 driver into the DriverStore with /add-driver.
-rem The SHA-2 patch is NEVER applied outside Windows 7.
-rem
-rem No-hold guarantees: every command is captured to a log; if a command fails
-rem it returns its exit code immediately - it never blocks waiting for a prompt.
+rem Strategy (no automatic system-update installs):
+rem   1. ALWAYS import the CH340 driver into the DriverStore with /add-driver.
+rem      /add-driver does NOT verify/bind a device, so it never pops a "cannot
+rem      verify publisher" dialog and never blocks.
+rem   2. If this is Windows 7 that LACKS the SHA-2 code-signing patch, show a
+rem      NON-BLOCKING notice (started as a detached process we do NOT wait on)
+rem      telling the user to install KB4474419, restart, and re-run.
+rem   3. The batch always returns promptly - it never waits on any dialog, so
+rem      the installer cannot hang.
 
 set "DRVDIR=%~dp0"
 set "USERLOG=%TEMP%\IDRConfigurator_driver.log"
@@ -29,35 +26,23 @@ echo OS=%OSVER% >> "%USERLOG%"
 rem ---- SHA-2 patch present on Windows 7? ----
 set "PATCHED="
 if "%OSVER%"=="6.1" (
-    reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\HotFix" /s 2>nul | findstr /i "KB3033929 KB4474419" >nul
+    reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\HotFix" /s 2>nul | findstr /i "KB3033929 KB4474419 KB4490628" >nul
     if not errorlevel 1 set "PATCHED=1"
 )
 echo PATCHED=%PATCHED% >> "%USERLOG%"
 
-rem ---- auto: Windows 7 WITHOUT the patch -> install it, ask to restart ----
-if "%OSVER%"=="6.1" if not defined PATCHED goto :doPatch
-goto :doDriver
-
-:doPatch
-set "PATCH="
-for %%f in ("%DRVDIR%windows6.1-kb3033929*.msu") do if exist "%%f" set "PATCH=%%f"
-if not exist "%PATCH%" (
-    echo NO_PATCH_MSU >> "%USERLOG%"
-    goto :doDriver
-)
-echo INSTALL_PATCH=%PATCH% >> "%USERLOG%"
-wusa.exe "%PATCH%" /quiet /norestart >> "%SYSLOG%" 2>&1
-set "rc=%errorlevel%"
-echo --- wusa exit code: %rc% --- >> "%USERLOG%"
-rem Inform the user a restart is required, then finish cleanly.
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
-  "Add-Type -AssemblyName PresentationFramework; $w = New-Object System.Windows.Window -Property @{Title='IDR Configurator - Restart Required'; Topmost=$true; Width=520; Height=220; WindowStartupLocation='CenterScreen'}; $s = [System.Windows.StackPanel]::new(); $s.Margin='16'; $t = [System.Windows.Controls.TextBlock]::new(); $t.Text=('The Windows 7 SHA-2 support update (KB3033929) has been installed.`n`nA restart is required for it to take effect. Please restart this PC and then run the IDR Configurator installer again to finish installing the CH340 driver.'); $t.TextWrapping='Wrap'; $s.Children.Add($t); $w.Content=$s; $w.ShowDialog()" >nul 2>&1
-exit /b 0
-
-:doDriver
+rem ---- 1. import the driver package (nothing blocks here) ----
 echo --- pnputil --- >> "%USERLOG%"
 pnputil.exe /add-driver "%DRVDIR%CH341SER.INF" >> "%SYSLOG%" 2>&1
 set "rc=%errorlevel%"
 echo --- pnputil exit code: %rc% --- >> "%USERLOG%"
+
+rem ---- 2. if Windows 7 lacks the SHA-2 patch, warn (non-blocking) ----
+if "%OSVER%"=="6.1" if not defined PATCHED (
+    echo SHA2_PATCH_MISSING_DRIVER_MAY_NOT_ACTIVATE >> "%USERLOG%"
+    rem Detached, hidden notice: the installer does NOT wait for this process.
+    start "" powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('The CH340 driver was registered, but this Windows 7 is missing the SHA-2 (SHA-256) code-signing patch, so the driver may not activate until it is installed.' + [char]13 + [char]10 + [char]13 + [char]10 + 'Please install KB4474419 from the Microsoft Update Catalog (search: KB4474419), restart this PC, then re-run the IDR Configurator installer.', 'IDR Configurator - SHA-2 support required', 'OK', 'Warning')" >nul 2>&1
+)
+
 if "%rc%"=="3010" exit /b 0
 exit /b %rc%

@@ -116,18 +116,6 @@ foreach ($a in $arches) {
     if (-not (Test-Path $batSrc)) { throw "Missing driver wrapper: $batSrc" }
     Copy-Item $batSrc $DrvDataDir -Force
 
-    # ---- stage the architecture-matched KB3033929 SHA-2 patch (Win7) ----
-    $patchDir = Join-Path $Installer "other\KB3033929"
-    $patchGlob = if ($a -eq "x64") { "windows6.1-kb3033929-x64*.msu" }
-                 else { "windows6.1-kb3033929-x86*.msu" }
-    $patch = Get-ChildItem (Join-Path $patchDir $patchGlob) -ErrorAction SilentlyContinue |
-        Select-Object -First 1
-    if ($patch) {
-        Copy-Item $patch.FullName $DrvDataDir -Force
-    } else {
-        Write-Warning "No $a KB3033929 .msu found under $patchDir; Win7 SHA-2 patch will be skipped."
-    }
-
     # ---- refresh licenses and installer icon ----
     foreach ($lic in @("license-gpl3.txt", "license-qt.txt", "license-font.txt")) {
         Copy-Item (Join-Path $Installer "other\license\$lic") $AppMetaDir -Force
