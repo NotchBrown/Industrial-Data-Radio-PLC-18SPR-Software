@@ -1771,38 +1771,38 @@
         <translation>发送内容 (CI1)</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="137"/>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="211"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="144"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="218"/>
         <source>D15-8</source>
         <translation>D15-8</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="144"/>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="218"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="137"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="211"/>
         <source>D7-0</source>
         <translation>D7-0</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="151"/>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="225"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="172"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="246"/>
         <source>A3</source>
         <translation>A3</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="158"/>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="232"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="165"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="239"/>
         <source>A2</source>
         <translation>A2</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="165"/>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="239"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="158"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="232"/>
         <source>A1</source>
         <translation>A1</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="172"/>
-        <location filename="../../widget/config_page/pages/task_table_page.ui" line="246"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="151"/>
+        <location filename="../../widget/config_page/pages/task_table_page.ui" line="225"/>
         <source>A0</source>
         <translation>A0</translation>
     </message>
