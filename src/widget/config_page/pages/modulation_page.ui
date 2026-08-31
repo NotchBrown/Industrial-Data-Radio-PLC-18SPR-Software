@@ -52,195 +52,269 @@
        </item>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="lblSf">
-       <property name="text">
-        <string>Spreading Factor (0x32)</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="comboSf">
-       <item>
-        <property name="text">
-         <string>6</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>7</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>8</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>9</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>10</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>11</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>12</string>
-        </property>
-       </item>
+      <widget class="QStackedWidget" name="stackModem">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <widget class="QWidget" name="pageLoRa">
+        <layout class="QFormLayout" name="formLoRa">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblSf">
+           <property name="minimumSize">
+            <size>
+             <width>190</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Spreading Factor (0x32)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="comboSf">
+           <item>
+            <property name="text">
+             <string>6</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>7</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>8</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>9</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>10</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>11</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>12</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblBw">
+           <property name="minimumSize">
+            <size>
+             <width>190</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Bandwidth (0x33)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="comboBw">
+           <item>
+            <property name="text">
+             <string>125 kHz</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>250 kHz</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>500 kHz</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblCr">
+           <property name="minimumSize">
+            <size>
+             <width>190</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Coding Rate (0x34)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="comboCr">
+           <item>
+            <property name="text">
+             <string>4/5</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>4/6</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>4/7</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>4/8</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pageFsk">
+        <layout class="QFormLayout" name="formFsk">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblFskBit">
+           <property name="minimumSize">
+            <size>
+             <width>190</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>FSK Bit Rate (bps)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="spinFskBitrate">
+           <property name="maximum">
+            <number>1000000</number>
+           </property>
+           <property name="singleStep">
+            <number>1000</number>
+           </property>
+           <property name="value">
+            <number>100000</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblFskFdev">
+           <property name="minimumSize">
+            <size>
+             <width>190</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>FSK Freq Deviation (Hz)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="spinFskFdev">
+           <property name="maximum">
+            <number>500000</number>
+           </property>
+           <property name="singleStep">
+            <number>1000</number>
+           </property>
+           <property name="value">
+            <number>50000</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblFskBw">
+           <property name="minimumSize">
+            <size>
+             <width>190</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>FSK Rx Bandwidth (kHz)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="comboFskBw">
+           <item>
+            <property name="text">
+             <string>125</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>166.7</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>200</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>250</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="lblBw">
-       <property name="text">
-        <string>Bandwidth (0x33)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="comboBw">
-       <item>
-        <property name="text">
-         <string>125 kHz</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>250 kHz</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>500 kHz</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="lblCr">
-       <property name="text">
-        <string>Coding Rate (0x34)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="comboCr">
-       <item>
-        <property name="text">
-         <string>4/5</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>4/6</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>4/7</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>4/8</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="lblFskBit">
-       <property name="text">
-        <string>FSK Bit Rate (bps)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QSpinBox" name="spinFskBitrate">
-       <property name="maximum">
-        <number>1000000</number>
-       </property>
-       <property name="singleStep">
-        <number>1000</number>
-       </property>
-       <property name="value">
-        <number>100000</number>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="lblFskFdev">
-       <property name="text">
-        <string>FSK Freq Deviation (Hz)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QSpinBox" name="spinFskFdev">
-       <property name="maximum">
-        <number>500000</number>
-       </property>
-       <property name="singleStep">
-        <number>1000</number>
-       </property>
-       <property name="value">
-        <number>50000</number>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="lblFskBw">
-       <property name="text">
-        <string>FSK Rx Bandwidth (kHz)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QComboBox" name="comboFskBw">
-       <item>
-        <property name="text">
-         <string>125</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>166.7</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>200</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>250</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="7" column="0">
       <widget class="QLabel" name="lblDataRateCaption">
        <property name="text">
         <string>Effective Data Rate</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="2" column="1">
       <widget class="QLabel" name="lblDataRate">
        <property name="text">
         <string>--</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="3" column="0">
+      <widget class="QLabel" name="lblRoundTrip">
+       <property name="text">
+        <string>Round-Trip Time</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="lblRoundTripValue">
+       <property name="text">
+        <string>--</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
       <layout class="QHBoxLayout" name="hlModemBtns">
        <item>
         <spacer name="horizontalSpacer">
@@ -273,6 +347,13 @@
         <widget class="QPushButton" name="btnModemApply">
          <property name="text">
           <string>Apply</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnModemTest">
+         <property name="text">
+          <string>Test</string>
          </property>
         </widget>
        </item>
