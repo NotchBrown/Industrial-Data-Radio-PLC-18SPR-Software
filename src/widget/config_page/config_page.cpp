@@ -61,6 +61,38 @@ QWidget *makePage(UiT &ui)
     return w;
 }
 
+// The index-tree group/leaf labels travel through QStringLiteral variables into
+// addPage()/tr(qPrintable(...)), which lupdate cannot scan (it only picks up
+// tr() with literal arguments). Declaring them with QT_TRANSLATE_NOOP marks them
+// as active translatable strings so lupdate keeps them in the .ts instead of
+// marking them "vanished", which lrelease would then drop (leaving the tree in
+// English at runtime).
+const char *const kTreeLabels[] = {
+    QT_TRANSLATE_NOOP("ConfigPage", "System"),
+    QT_TRANSLATE_NOOP("ConfigPage", "MCU ID"),
+    QT_TRANSLATE_NOOP("ConfigPage", "RTC Clock"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Storage"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Realtime I/O"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Digital DI/DO"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Analog AI/AO"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Network & Role"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Local / Peer Address"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Master-Slave Role"),
+    QT_TRANSLATE_NOOP("ConfigPage", "RF Parameters"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Carrier Frequency"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Modulation"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Power & Preamble"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Schedule"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Task Table"),
+    QT_TRANSLATE_NOOP("ConfigPage", "RS-485 Passthrough"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Debug & Statistics"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Counters & Test"),
+    QT_TRANSLATE_NOOP("ConfigPage", "RSSI / SNR"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Frequency Calibration"),
+    QT_TRANSLATE_NOOP("ConfigPage", "Register Access"),
+    QT_TRANSLATE_NOOP("ConfigPage", "SX1278 Register"),
+};
+
 } // namespace
 
 // All page Ui objects and their widgets, kept out of the header.
@@ -210,6 +242,7 @@ void ConfigPage::addPage(const QString &groupSrc, const QString &leafSrc, QWidge
 
 void ConfigPage::createPages()
 {
+    Q_UNUSED(kTreeLabels); // keep the QT_TRANSLATE_NOOP declarations referenced
     addPage(QStringLiteral("System"), QStringLiteral("MCU ID"), m_pg->mcuIdW);
     addPage(QStringLiteral("System"), QStringLiteral("RTC Clock"), m_pg->rtcW);
     addPage(QStringLiteral("System"), QStringLiteral("Storage"), m_pg->storageW);
@@ -318,8 +351,14 @@ void ConfigPage::wirePages()
     // ---- System / Storage --------------------------------------------------
     connect(m_pg->storage.btnReadConfigValid, &QPushButton::clicked, this,
             [this] { sendRead(Proto::ADDR_SAVE); });
-    connect(m_pg->storage.btnSaveConfig, &QPushButton::clicked, this,
-            [this] { sendWriteTimeout(Proto::ADDR_SAVE, 0x0001); });
+    // Save Config writes / applies every field from the loaded configuration,
+    // then persists it to EEPROM. This is the one-click "apply all" path the
+    // bundled example configurations rely on.
+    connect(m_pg->storage.btnSaveConfig, &QPushButton::clicked, this, [this] {
+        writeAllSettings();
+        sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
+        sendWriteTimeout(Proto::ADDR_SAVE, 0x0001);
+    });
     connect(m_pg->storage.btnFactoryReset, &QPushButton::clicked, this, [this] {
         const auto ret = QMessageBox::question(this, tr("Factory Reset"),
                                                tr("Reset the device to factory settings?"));
@@ -500,20 +539,7 @@ void ConfigPage::wirePages()
         sendRead(Proto::ADDR_FREQ_HI);
     });
     // Write: store the frequency to the data registers only (pending).
-    const auto writeFreq = [this]() -> bool {
-        const bool mhz = m_pg->frequency.comboFreqUnit->currentIndex() == 0;
-        const double val = m_pg->frequency.spinFreq->value();
-        const quint64 hz = static_cast<quint64>(mhz ? val * 1e6 : val * 1e3);
-        // SX1278 sub-GHz range (137~525 MHz); reject out-of-range instead of
-        // sending a value the chip cannot produce.
-        if (hz < 137000000ull || hz > 525000000ull) {
-            emit statusMessage(tr("Frequency out of range: 137.000 ~ 525.000 MHz."));
-            return false;
-        }
-        sendWrite(Proto::ADDR_FREQ_LO, static_cast<quint16>(hz & 0xFFFF));
-        sendWrite(Proto::ADDR_FREQ_HI, static_cast<quint16>((hz >> 16) & 0xFFFF));
-        return true;
-    };
+    const auto writeFreq = [this]() -> bool { return writeFrequency(); };
     connect(m_pg->frequency.btnFreqWrite, &QPushButton::clicked, this, [writeFreq] { writeFreq(); });
     // Apply: store the data registers, then trigger 0x29 so the RF bank takes
     // effect immediately. Self-contained (no prior Write required).
@@ -573,13 +599,10 @@ void ConfigPage::wirePages()
     const auto isFsk = [this] { return m_pg->modulation.comboRadio->currentIndex() == 1; };
     // Toggle the visible parameter group for the selected modulation.
     const auto updateModemUi = [this, isFsk, updateDataRate] {
-        const bool fsk = isFsk();
-        m_pg->modulation.lblSf->setVisible(!fsk);       m_pg->modulation.comboSf->setVisible(!fsk);
-        m_pg->modulation.lblBw->setVisible(!fsk);       m_pg->modulation.comboBw->setVisible(!fsk);
-        m_pg->modulation.lblCr->setVisible(!fsk);       m_pg->modulation.comboCr->setVisible(!fsk);
-        m_pg->modulation.lblFskBit->setVisible(fsk);    m_pg->modulation.spinFskBitrate->setVisible(fsk);
-        m_pg->modulation.lblFskFdev->setVisible(fsk);   m_pg->modulation.spinFskFdev->setVisible(fsk);
-        m_pg->modulation.lblFskBw->setVisible(fsk);     m_pg->modulation.comboFskBw->setVisible(fsk);
+        // The two mode parameter sets live in separate stacked pages (pageLoRa
+        // / pageFsk), so switching the stack keeps every field aligned with no
+        // empty rows left behind.
+        m_pg->modulation.stackModem->setCurrentIndex(isFsk() ? 1 : 0);
         updateDataRate();
     };
     connect(m_pg->modulation.comboRadio, qOverload<int>(&QComboBox::currentIndexChanged), this,
@@ -590,37 +613,45 @@ void ConfigPage::wirePages()
     connect(m_pg->modulation.spinFskBitrate, qOverload<int>(&QSpinBox::valueChanged), this, updateDataRate);
     connect(m_pg->modulation.spinFskFdev, qOverload<int>(&QSpinBox::valueChanged), this, updateDataRate);
     connect(m_pg->modulation.comboFskBw, qOverload<int>(&QComboBox::currentIndexChanged), this, updateDataRate);
+    // SX1278 FSK bounds: BitRate 1.2..300 kbps, Fdev 0.6..200 kHz. The receiver
+    // bandwidth must also satisfy 2*Fdev + BitRate <= RxBw, so the maximum
+    // Fdev is clamped live from the selected RxBw and bit rate.
+    m_pg->modulation.spinFskBitrate->setRange(1200, 300000);
+    m_pg->modulation.spinFskFdev->setRange(600, 200000);
+    const auto updateFskFdevMax = [this] {
+        static const int bwHz[4] = {125000, 166700, 200000, 250000};
+        const int bitrate = m_pg->modulation.spinFskBitrate->value();
+        const int rxbw = bwHz[qBound(0, m_pg->modulation.comboFskBw->currentIndex(), 3)];
+        const int maxFdev = qMax(600, qMin(200000, (rxbw - bitrate) / 2));
+        m_pg->modulation.spinFskFdev->setMaximum(maxFdev);
+    };
+    updateFskFdevMax();
+    connect(m_pg->modulation.spinFskBitrate, qOverload<int>(&QSpinBox::valueChanged), this,
+            [updateFskFdevMax](int) { updateFskFdevMax(); });
+    connect(m_pg->modulation.comboFskBw, qOverload<int>(&QComboBox::currentIndexChanged), this,
+            [updateFskFdevMax](int) { updateFskFdevMax(); });
     updateModemUi();
 
     connect(m_pg->modulation.btnModemRead, &QPushButton::clicked, this, [this] {
         sendRead(Proto::ADDR_RADIO);
     });
     // Write: store the modem params for the selected modulation (pending).
-    const auto writeModem = [this, isFsk, fskBwHz, fskBwReg] {
-        static const int bwTable[3] = {125, 250, 500};
-        sendWrite(Proto::ADDR_RADIO, static_cast<quint16>(isFsk() ? 1 : 0));
-        if (isFsk()) {
-            // SX1278 FSK: BitRate = 32MHz/rate, Fdev = dev/61 (16-bit big endian).
-            const int br = static_cast<int>(32000000ULL / m_pg->modulation.spinFskBitrate->value());
-            const int fd = static_cast<int>(m_pg->modulation.spinFskFdev->value() / 61);
-            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 0), static_cast<quint16>((br >> 8) & 0xFF));
-            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 1), static_cast<quint16>(br & 0xFF));
-            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 2), static_cast<quint16>((fd >> 8) & 0xFF));
-            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 3), static_cast<quint16>(fd & 0xFF));
-            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 4),
-                      static_cast<quint16>(fskBwReg(fskBwHz(m_pg->modulation.comboFskBw->currentIndex()))));
-        } else {
-            sendWrite(Proto::ADDR_SF, static_cast<quint16>(6 + m_pg->modulation.comboSf->currentIndex()));
-            sendWrite(Proto::ADDR_BW,
-                      static_cast<quint16>(bwTable[m_pg->modulation.comboBw->currentIndex()]));
-            sendWrite(Proto::ADDR_CR, static_cast<quint16>(5 + m_pg->modulation.comboCr->currentIndex()));
-        }
-    };
+    const auto writeModem = [this] { writeModemParams(); };
     connect(m_pg->modulation.btnModemWrite, &QPushButton::clicked, this, [writeModem] { writeModem(); });
     // Apply: store then trigger 0x29 so the RF bank takes effect immediately.
     connect(m_pg->modulation.btnModemApply, &QPushButton::clicked, this, [this, writeModem] {
         writeModem();
         sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
+    });
+    // Test: trigger the RF test frame (0x20); the reply value is the round-trip
+    // airtime in ms for one link exchange.
+    connect(m_pg->modulation.btnModemTest, &QPushButton::clicked, this, [this] {
+        m_pg->modulation.lblRoundTripValue->setText(tr("Testing..."));
+        sendWriteTimeout(Proto::ADDR_RF_TEST, 0x0001);
+    });
+    registerHandler(Proto::ADDR_RF_TEST, [this](quint8 head, quint16 data) {
+        if (head == Proto::HEAD_WRITE)
+            m_pg->modulation.lblRoundTripValue->setText(tr("%1 ms").arg(data));
     });
     registerHandler(Proto::ADDR_RADIO, [this, updateModemUi](quint8, quint16 data) {
         const bool fsk = (data & 0x01) != 0;
@@ -628,8 +659,11 @@ void ConfigPage::wirePages()
         updateModemUi();
         if (fsk) {
             m_fskReadCount = 0;
-            for (int i = 0; i < 5; ++i)
-                sendRead(static_cast<quint8>(Proto::ADDR_FSK_BASE + i));
+            sendRead(static_cast<quint8>(0x62));
+            sendRead(static_cast<quint8>(0x63));
+            sendRead(static_cast<quint8>(0x64));
+            sendRead(static_cast<quint8>(0x65));
+            sendRead(Proto::ADDR_FSK_RXBW);
         } else {
             sendRead(Proto::ADDR_SF);
             sendRead(Proto::ADDR_BW);
@@ -652,36 +686,7 @@ void ConfigPage::wirePages()
         const int cr = qBound(5, static_cast<int>(data & 0xFF), 8);
         m_pg->modulation.comboCr->setCurrentIndex(cr - 5);
     });
-    // FSK direct-register read: accumulate until all 5 values arrived, then apply.
-    const auto fskGot = [this] {
-        if (++m_fskReadCount >= 5)
-            doFskReadUpdate();
-    };
-    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 0),
-                    [this, fskGot](quint8, quint16 data) {
-        m_fskBitMsb = static_cast<quint8>(data & 0xFF);
-        fskGot();
-    });
-    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 1),
-                    [this, fskGot](quint8, quint16 data) {
-        m_fskBitLsb = static_cast<quint8>(data & 0xFF);
-        fskGot();
-    });
-    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 2),
-                    [this, fskGot](quint8, quint16 data) {
-        m_fskFdevMsb = static_cast<quint8>(data & 0xFF);
-        fskGot();
-    });
-    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 3),
-                    [this, fskGot](quint8, quint16 data) {
-        m_fskFdevLsb = static_cast<quint8>(data & 0xFF);
-        fskGot();
-    });
-    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 4),
-                    [this, fskBwIndex, fskGot](quint8, quint16 data) {
-        m_pg->modulation.comboFskBw->setCurrentIndex(fskBwIndex(data & 0xFF));
-        fskGot();
-    });
+    // FSK 读回(0x62~0x73, register 页段)在 onReply 中协调; 此处无需额外 handler。
 
     // ---- RF Parameters / Power & Preamble ----------------------------------
     // Live-show the equivalent dBm for the power code (PA_BOOST: ~17-(15-code) dBm).
@@ -934,38 +939,28 @@ void ConfigPage::wirePages()
                                      tr("At least one task is required before applying."));
                 return;
             }
-            // Slots without a visible row are written as disabled.
-            for (int n = 0; n < 32; ++n) {
-                quint16 ci1 = 0, ci2 = 0;
-                int ena = 0;
-                if (n < table->rowCount()) {
-                    if (!parseHex(table->item(n, 4)->text(), 0xFF, ci1)
-                            || !parseHex(table->item(n, 5)->text(), 0xFF, ci2)) {
-                        emit statusMessage(tr("Task %1: CI1/CI2 must be hex 00~FF.").arg(n));
-                        return;
-                    }
-                    bool ok = false;
-                    // Interval in ms; protocol unit = TIM4 6kHz tick (166.7us),
-                    // 6 ticks = 1 ms, so the minimum is one tick (1/6 ms).
-                    const double periodMs = table->item(n, 3)->text().toDouble(&ok);
-                    if (!ok || periodMs < 1.0 / 6.0) {
-                        emit statusMessage(
-                                tr("Task %1: interval must be at least 1/6 ms.").arg(n));
-                        return;
-                    }
-                    const qint64 units = qRound64(periodMs * 6.0);
-                    if (units < 1 || units > 0xFFFF) {
-                        emit statusMessage(tr("Task %1: interval exceeds ~10.9 s limit.").arg(n));
-                        return;
-                    }
-                    ena = table->item(n, 2)->checkState() == Qt::Checked ? 1 : 0;
-                    sendWrite(Proto::taskPeriodLo(n), static_cast<quint16>(units & 0xFF));
-                    sendWrite(Proto::taskPeriodHi(n), static_cast<quint16>((units >> 8) & 0xFF));
+            // Validate every visible row first, so a bad row aborts before any
+            // partial write reaches the device.
+            for (int n = 0; n < table->rowCount(); ++n) {
+                quint16 c1 = 0, c2 = 0;
+                if (!parseHex(table->item(n, 4)->text(), 0xFF, c1)
+                        || !parseHex(table->item(n, 5)->text(), 0xFF, c2)) {
+                    emit statusMessage(tr("Task %1: CI1/CI2 must be hex 00~FF.").arg(n));
+                    return;
                 }
-                sendWrite(Proto::taskCi1(n), ci1);
-                sendWrite(Proto::taskEna(n), static_cast<quint16>(ena));
-                sendWrite(Proto::taskCi2(n), ci2);
+                bool ok = false;
+                const double periodMs = table->item(n, 3)->text().toDouble(&ok);
+                if (!ok || periodMs < 1.0 / 6.0) {
+                    emit statusMessage(tr("Task %1: interval must be at least 1/6 ms.").arg(n));
+                    return;
+                }
+                const qint64 units = qRound64(periodMs * 6.0);
+                if (units < 1 || units > 0xFFFF) {
+                    emit statusMessage(tr("Task %1: interval exceeds ~10.9 s limit.").arg(n));
+                    return;
+                }
             }
+            writeAllTasks();
             emit statusMessage(tr("Applying task table..."));
         });
         // After a device reply updates a cell, refresh the editor if that row is
@@ -1009,6 +1004,12 @@ void ConfigPage::wirePages()
                                 maybeReloadEditor(n);
                             });
         }
+    } else {
+        // Slave (no task table): CI2 slot 0 (0x40) is the content the slave
+        // returns to the master; used by the bundled example configurations.
+        registerHandler(static_cast<quint8>(0x40), [this](quint8, quint16 data) {
+            m_slaveCi2 = data & 0xFF;
+        });
     }
 
     // ---- RS-485 ------------------------------------------------------------
@@ -1432,6 +1433,27 @@ void ConfigPage::onReply(quint8 head, quint8 addr, quint16 data)
         QTableWidget *t = m_pg->regPage.tableRegisters;
         if (reg >= 0 && reg < t->rowCount())
             t->item(reg, 2)->setText(hex8(data)); // Read Value column
+        // FSK modem readbacks that live on this SX1278 direct-write page:
+        switch (addr) {
+        case 0x62: m_fskBitMsb = static_cast<quint8>(data & 0xFF); break;
+        case 0x63: m_fskBitLsb = static_cast<quint8>(data & 0xFF); break;
+        case 0x64: m_fskFdevMsb = static_cast<quint8>(data & 0xFF); break;
+        case 0x65: m_fskFdevLsb = static_cast<quint8>(data & 0xFF); break;
+        case Proto::ADDR_FSK_RXBW: {
+            int idx = 0;
+            if ((data & 0xFF) == 0x11) idx = 1;
+            else if ((data & 0xFF) == 0x09) idx = 2;
+            else if ((data & 0xFF) == 0x01) idx = 3;
+            m_pg->modulation.comboFskBw->setCurrentIndex(idx);
+            break;
+        }
+        default: break;
+        }
+        if (addr == 0x62 || addr == 0x63 || addr == 0x64 || addr == 0x65
+                || addr == Proto::ADDR_FSK_RXBW) {
+            if (++m_fskReadCount >= 5)
+                doFskReadUpdate();
+        }
         emit statusMessage(tr("Reg 0x%1 = 0x%2.")
                                    .arg(reg, 2, 16, QChar('0'))
                                    .arg(data & 0xFF, 2, 16, QChar('0')));
@@ -1460,6 +1482,171 @@ QString ConfigPage::connectionText() const
                        : QStringLiteral("Port: Not connected");
 }
 
+/* ========================= Bulk device operations ========================= */
+bool ConfigPage::writeFrequency()
+{
+    const bool mhz = m_pg->frequency.comboFreqUnit->currentIndex() == 0;
+    const double val = m_pg->frequency.spinFreq->value();
+    const quint64 hz = static_cast<quint64>(mhz ? val * 1e6 : val * 1e3);
+    if (hz < 137000000ull || hz > 525000000ull) {
+        emit statusMessage(tr("Frequency out of range: 137.000 ~ 525.000 MHz."));
+        return false;
+    }
+    sendWrite(Proto::ADDR_FREQ_LO, static_cast<quint16>(hz & 0xFFFF));
+    sendWrite(Proto::ADDR_FREQ_HI, static_cast<quint16>((hz >> 16) & 0xFFFF));
+    return true;
+}
+
+void ConfigPage::writePowerBank()
+{
+    sendWrite(Proto::ADDR_POWER, static_cast<quint16>(m_pg->power.spinPower->value()));
+    sendWrite(Proto::ADDR_PREAMBLE, static_cast<quint16>(m_pg->power.spinPreamble->value()));
+    sendWrite(Proto::ADDR_SYNCWORD, static_cast<quint16>(m_pg->power.spinSyncword->value()));
+    sendWrite(Proto::ADDR_LNA, static_cast<quint16>(m_pg->power.spinLna->value()));
+}
+
+void ConfigPage::writeModemParams()
+{
+    const bool fsk = m_pg->modulation.comboRadio->currentIndex() == 1;
+    sendWrite(Proto::ADDR_RADIO, static_cast<quint16>(fsk ? 1 : 0));
+    if (fsk) {
+        // SX1278 FSK: reject combinations that the receiver cannot demodulate
+        // (the occupied channel 2*Fdev + BitRate must fit inside the RxBw IF).
+        static const int fskBwHz[4] = {125000, 166700, 200000, 250000};
+        const int bitrate = m_pg->modulation.spinFskBitrate->value();
+        const int fdev = m_pg->modulation.spinFskFdev->value();
+        const int rxbw = fskBwHz[qBound(0, m_pg->modulation.comboFskBw->currentIndex(), 3)];
+        if (2 * fdev + bitrate > rxbw) {
+            emit statusMessage(tr("FSK: 2*Fdev + BitRate (=%1 Hz) exceeds RxBw (=%2 Hz).")
+                                       .arg(2 * fdev + bitrate)
+                                       .arg(rxbw));
+            return;
+        }
+        const int br = static_cast<int>(32000000ULL / bitrate);
+        const int fd = static_cast<int>(fdev / 61);
+        const int bwr = (rxbw <= 125000) ? 0x02 : (rxbw <= 166700) ? 0x11
+                                         : (rxbw <= 200000) ? 0x09 : 0x01;
+        sendWrite(static_cast<quint8>(0x62), static_cast<quint16>((br >> 8) & 0xFF));
+        sendWrite(static_cast<quint8>(0x63), static_cast<quint16>(br & 0xFF));
+        sendWrite(static_cast<quint8>(0x64), static_cast<quint16>((fd >> 8) & 0xFF));
+        sendWrite(static_cast<quint8>(0x65), static_cast<quint16>(fd & 0xFF));
+        sendWrite(Proto::ADDR_FSK_RXBW, static_cast<quint16>(bwr));
+        sendWrite(Proto::ADDR_FSK_AFCBW, static_cast<quint16>(bwr));
+        sendWrite(Proto::ADDR_FSK_PA, 0x8F);      // PA enable + power=15 (matches demo)
+        sendWrite(Proto::ADDR_FSK_LNA, 0x23);
+        sendWrite(Proto::ADDR_FSK_RXCFG, 0x1E);
+        sendWrite(Proto::ADDR_FSK_PKT1, 0x90);
+        sendWrite(Proto::ADDR_FSK_PKT2, 0x40);
+        sendWrite(Proto::ADDR_FSK_PAYLOAD, 0xFF);
+        sendWrite(Proto::ADDR_FSK_SYNC, 0xC1);
+    } else {
+        static const int bwTable[3] = {125, 250, 500};
+        sendWrite(Proto::ADDR_SF, static_cast<quint16>(6 + m_pg->modulation.comboSf->currentIndex()));
+        sendWrite(Proto::ADDR_BW,
+                  static_cast<quint16>(bwTable[m_pg->modulation.comboBw->currentIndex()]));
+        sendWrite(Proto::ADDR_CR, static_cast<quint16>(5 + m_pg->modulation.comboCr->currentIndex()));
+    }
+}
+
+void ConfigPage::writeAllTasks()
+{
+    QTableWidget *table = m_pg->tasks.tableTasks;
+    for (int n = 0; n < 32; ++n) {
+        quint16 ci1 = 0, ci2 = 0;
+        int ena = 0;
+        if (n < table->rowCount()) {
+            parseHex(table->item(n, 4)->text(), 0xFF, ci1);
+            parseHex(table->item(n, 5)->text(), 0xFF, ci2);
+            ena = table->item(n, 2)->checkState() == Qt::Checked ? 1 : 0;
+            bool ok = false;
+            const double periodMs = table->item(n, 3)->text().toDouble(&ok);
+            qint64 units = ok ? qRound64(periodMs * 6.0) : 6;
+            units = qBound<qint64>(1, units, 0xFFFF);
+            sendWrite(Proto::taskPeriodLo(n), static_cast<quint16>(units & 0xFF));
+            sendWrite(Proto::taskPeriodHi(n), static_cast<quint16>((units >> 8) & 0xFF));
+        }
+        sendWrite(Proto::taskCi1(n), ci1);
+        sendWrite(Proto::taskEna(n), static_cast<quint16>(ena));
+        sendWrite(Proto::taskCi2(n), ci2);
+    }
+}
+
+// Network/Role + RS-485 + RF bank + tasks (master) or slave CI2. Data-register
+// writes only: nothing is applied (0x29) here.
+void ConfigPage::writeAllSettings()
+{
+    sendWrite(Proto::ADDR_LOCAL_ADDR, static_cast<quint16>(m_pg->address.spinSelfAddr->value()));
+    sendWrite(Proto::ADDR_PEER_ADDR, static_cast<quint16>(m_pg->address.spinPeerAddr->value()));
+    sendWrite(Proto::ADDR_ROLE, static_cast<quint16>(m_isMaster ? 1 : 0));
+    static const int baudTable[8] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+    sendWrite(Proto::ADDR_485_BAUD,
+              static_cast<quint16>(baudTable[qBound(0, m_pg->rs485.combo485Baud->currentIndex(), 7)]));
+    sendWrite(Proto::ADDR_485_BUF, static_cast<quint16>(m_pg->rs485.spin485Buf->value()));
+    sendWrite(Proto::ADDR_485_TIMEOUT, static_cast<quint16>(m_pg->rs485.spin485Timeout->value()));
+    sendWrite(Proto::ADDR_485_ENABLE, m_pg->rs485.chk485Enable->isChecked() ? 1 : 0);
+    writeFrequency();
+    writePowerBank();
+    writeModemParams();
+    if (m_isMaster)
+        writeAllTasks();
+    else
+        sendWrite(static_cast<quint8>(0x40), static_cast<quint16>(m_slaveCi2));
+}
+
+void ConfigPage::readAll()
+{
+    for (int i = 0; i < 3; ++i)
+        sendRead(static_cast<quint8>(Proto::ADDR_MCU_ID0 + i));
+    sendRead(Proto::ADDR_LOCAL_ADDR);
+    sendRead(Proto::ADDR_PEER_ADDR);
+    sendRead(Proto::ADDR_ROLE);
+    sendRead(Proto::ADDR_485_BAUD);
+    sendRead(Proto::ADDR_485_BUF);
+    sendRead(Proto::ADDR_485_TIMEOUT);
+    sendRead(Proto::ADDR_485_ENABLE);
+    sendRead(Proto::ADDR_SAVE);            // configuration validity
+    sendRead(Proto::ADDR_FREQ_LO);
+    sendRead(Proto::ADDR_FREQ_HI);
+    sendRead(Proto::ADDR_RADIO);           // triggers the LoRa/FSK param reads
+    sendRead(Proto::ADDR_POWER);
+    sendRead(Proto::ADDR_PREAMBLE);
+    sendRead(Proto::ADDR_SYNCWORD);
+    sendRead(Proto::ADDR_LNA);
+    sendRead(Proto::ADDR_RSSI);
+    sendRead(Proto::ADDR_SNR);
+    sendRead(Proto::ADDR_RX_COUNT);
+    sendRead(Proto::ADDR_CRC_ERR_COUNT);
+    sendRead(Proto::ADDR_TX_OVERFLOW_COUNT);
+    if (m_isMaster) {
+        for (int n = 0; n < 32; ++n) {
+            sendRead(Proto::taskCi1(n));
+            sendRead(Proto::taskEna(n));
+            sendRead(Proto::taskPeriodLo(n));
+            sendRead(Proto::taskPeriodHi(n));
+            sendRead(Proto::taskCi2(n));
+        }
+    } else {
+        sendRead(static_cast<quint8>(0x40));
+    }
+    emit statusMessage(tr("Reading all settings..."));
+}
+
+void ConfigPage::writeAll()
+{
+    writeAllSettings();
+    emit statusMessage(tr("All settings written (Apply required)."));
+}
+
+void ConfigPage::applyAll()
+{
+    writeAllSettings();
+    sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
+    // Persist so the applied configuration survives power cycles.
+    sendWriteTimeout(Proto::ADDR_SAVE, 0x0001);
+    emit statusMessage(tr("All settings written, applied and saved to EEPROM."));
+}
+
+/* ========================= .iml field serialization ======================= */
 bool ConfigPage::toXml(QDomDocument &doc) const
 {
     QDomElement root = doc.createElement(QStringLiteral("druppc"));
@@ -1468,7 +1655,62 @@ bool ConfigPage::toXml(QDomDocument &doc) const
     root.setAttribute(QStringLiteral("version"), QStringLiteral("1"));
     root.setAttribute(QStringLiteral("app"), QCoreApplication::applicationVersion());
     doc.appendChild(root);
-    // TODO: snapshot page values (field level serialization)
+
+    QDomElement address = doc.createElement(QStringLiteral("address"));
+    address.setAttribute(QStringLiteral("local"), m_pg->address.spinSelfAddr->value());
+    address.setAttribute(QStringLiteral("peer"), m_pg->address.spinPeerAddr->value());
+    root.appendChild(address);
+
+    QDomElement rf = doc.createElement(QStringLiteral("rf"));
+    const bool mhz = m_pg->frequency.comboFreqUnit->currentIndex() == 0;
+    const double val = m_pg->frequency.spinFreq->value();
+    const qint64 hz = static_cast<qint64>(mhz ? val * 1e6 : val * 1e3);
+    rf.setAttribute(QStringLiteral("freq"), QString::number(hz / 1e6, 'f', 3)); // MHz
+    rf.setAttribute(QStringLiteral("modem"), m_pg->modulation.comboRadio->currentIndex());
+    rf.setAttribute(QStringLiteral("sf"), 6 + m_pg->modulation.comboSf->currentIndex());
+    static const int bwTable[3] = {125, 250, 500};
+    rf.setAttribute(QStringLiteral("bw"), bwTable[m_pg->modulation.comboBw->currentIndex()]);
+    rf.setAttribute(QStringLiteral("cr"), 5 + m_pg->modulation.comboCr->currentIndex());
+    rf.setAttribute(QStringLiteral("fskbitrate"), m_pg->modulation.spinFskBitrate->value());
+    rf.setAttribute(QStringLiteral("fskfdev"), m_pg->modulation.spinFskFdev->value());
+    rf.setAttribute(QStringLiteral("fskbw"), m_pg->modulation.comboFskBw->currentIndex());
+    root.appendChild(rf);
+
+    QDomElement power = doc.createElement(QStringLiteral("power"));
+    power.setAttribute(QStringLiteral("tx"), m_pg->power.spinPower->value());
+    power.setAttribute(QStringLiteral("preamble"), m_pg->power.spinPreamble->value());
+    power.setAttribute(QStringLiteral("sync"), m_pg->power.spinSyncword->value());
+    power.setAttribute(QStringLiteral("lna"), m_pg->power.spinLna->value());
+    root.appendChild(power);
+
+    static const int baudTable[8] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+    QDomElement rs485 = doc.createElement(QStringLiteral("rs485"));
+    rs485.setAttribute(QStringLiteral("baud"),
+                       baudTable[qBound(0, m_pg->rs485.combo485Baud->currentIndex(), 7)]);
+    rs485.setAttribute(QStringLiteral("buf"), m_pg->rs485.spin485Buf->value());
+    rs485.setAttribute(QStringLiteral("timeout"), m_pg->rs485.spin485Timeout->value());
+    rs485.setAttribute(QStringLiteral("enable"), m_pg->rs485.chk485Enable->isChecked() ? 1 : 0);
+    root.appendChild(rs485);
+
+    if (m_isMaster) {
+        QTableWidget *table = m_pg->tasks.tableTasks;
+        QDomElement tasks = doc.createElement(QStringLiteral("tasks"));
+        tasks.setAttribute(QStringLiteral("count"), table->rowCount());
+        for (int n = 0; n < table->rowCount(); ++n) {
+            QDomElement task = doc.createElement(QStringLiteral("task"));
+            task.setAttribute(QStringLiteral("ci1"), table->item(n, 4)->text());
+            task.setAttribute(QStringLiteral("ci2"), table->item(n, 5)->text());
+            task.setAttribute(QStringLiteral("ena"),
+                             table->item(n, 2)->checkState() == Qt::Checked ? 1 : 0);
+            task.setAttribute(QStringLiteral("period"), table->item(n, 3)->text());
+            tasks.appendChild(task);
+        }
+        root.appendChild(tasks);
+    } else {
+        QDomElement slave = doc.createElement(QStringLiteral("slave"));
+        slave.setAttribute(QStringLiteral("ci2"), hex8(m_slaveCi2));
+        root.appendChild(slave);
+    }
     return true;
 }
 
@@ -1478,5 +1720,102 @@ bool ConfigPage::fromXml(const QDomDocument &doc)
     if (root.isNull())
         return false;
     const QString type = root.attribute(QStringLiteral("type"));
-    return type == (m_isMaster ? QStringLiteral("master") : QStringLiteral("slave"));
+    if (type != (m_isMaster ? QStringLiteral("master") : QStringLiteral("slave")))
+        return false;
+
+    const QDomElement address = root.firstChildElement(QStringLiteral("address"));
+    if (!address.isNull()) {
+        m_pg->address.spinSelfAddr->setValue(address.attribute(QStringLiteral("local")).toInt());
+        m_pg->address.spinPeerAddr->setValue(address.attribute(QStringLiteral("peer")).toInt());
+    }
+
+    const QDomElement rf = root.firstChildElement(QStringLiteral("rf"));
+    if (!rf.isNull()) {
+        m_pg->frequency.comboFreqUnit->setCurrentIndex(0); // display in MHz
+        m_pg->frequency.spinFreq->setValue(rf.attribute(QStringLiteral("freq")).toDouble());
+        m_pg->modulation.comboRadio->setCurrentIndex(rf.attribute(QStringLiteral("modem")).toInt());
+        const int sf = rf.attribute(QStringLiteral("sf"), "7").toInt();
+        m_pg->modulation.comboSf->setCurrentIndex(qBound(6, sf, 12) - 6);
+        const int bw = rf.attribute(QStringLiteral("bw"), "125").toInt();
+        m_pg->modulation.comboBw->setCurrentIndex(bw >= 500 ? 2 : (bw >= 250 ? 1 : 0));
+        const int cr = rf.attribute(QStringLiteral("cr"), "5").toInt();
+        m_pg->modulation.comboCr->setCurrentIndex(qBound(5, cr, 8) - 5);
+        m_pg->modulation.spinFskBitrate->setValue(
+                rf.attribute(QStringLiteral("fskbitrate"), "100000").toInt());
+        m_pg->modulation.spinFskFdev->setValue(
+                rf.attribute(QStringLiteral("fskfdev"), "50000").toInt());
+        m_pg->modulation.comboFskBw->setCurrentIndex(
+                qBound(0, rf.attribute(QStringLiteral("fskbw"), "2").toInt(), 3));
+    }
+
+    const QDomElement power = root.firstChildElement(QStringLiteral("power"));
+    if (!power.isNull()) {
+        m_pg->power.spinPower->setValue(power.attribute(QStringLiteral("tx"), "13").toInt());
+        m_pg->power.spinPreamble->setValue(power.attribute(QStringLiteral("preamble"), "8").toInt());
+        m_pg->power.spinSyncword->setValue(power.attribute(QStringLiteral("sync"), "18").toInt());
+        m_pg->power.spinLna->setValue(power.attribute(QStringLiteral("lna"), "35").toInt());
+    }
+
+    const QDomElement rs485 = root.firstChildElement(QStringLiteral("rs485"));
+    if (!rs485.isNull()) {
+        static const int baudTable[8] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+        const int baud = rs485.attribute(QStringLiteral("baud"), "115200").toInt();
+        int idx = 7;
+        for (int i = 0; i < 8; ++i) {
+            if (baudTable[i] == baud) { idx = i; break; }
+        }
+        m_pg->rs485.combo485Baud->setCurrentIndex(idx);
+        m_pg->rs485.spin485Buf->setValue(rs485.attribute(QStringLiteral("buf"), "64").toInt());
+        m_pg->rs485.spin485Timeout->setValue(
+                rs485.attribute(QStringLiteral("timeout"), "5").toInt());
+        m_pg->rs485.chk485Enable->setChecked(rs485.attribute(QStringLiteral("enable"), "0").toInt());
+    }
+
+    if (m_isMaster) {
+        QTableWidget *table = m_pg->tasks.tableTasks;
+        const QDomElement tasks = root.firstChildElement(QStringLiteral("tasks"));
+        const int count = qBound(1, tasks.isNull()
+                                        ? 1 : tasks.attribute(QStringLiteral("count"), "1").toInt(),
+                                 32);
+        table->setRowCount(0);
+        table->setRowCount(count); // grow before setItem so rows exist
+        for (int n = 0; n < count; ++n) {
+            auto *itn = new QTableWidgetItem(QString::number(n));
+            itn->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            auto *name = new QTableWidgetItem(QString());
+            name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            auto *cbox = new QTableWidgetItem;
+            cbox->setFlags((cbox->flags() | Qt::ItemIsUserCheckable) & ~Qt::ItemIsEditable);
+            cbox->setCheckState(Qt::Unchecked);
+            auto *per = new QTableWidgetItem(QStringLiteral("0"));
+            per->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            auto *c1 = new QTableWidgetItem(QStringLiteral("00"));
+            c1->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            auto *c2 = new QTableWidgetItem(QStringLiteral("00"));
+            c2->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            table->setItem(n, 0, itn);
+            table->setItem(n, 1, name);
+            table->setItem(n, 2, cbox);
+            table->setItem(n, 3, per);
+            table->setItem(n, 4, c1);
+            table->setItem(n, 5, c2);
+        }
+        QDomElement task = tasks.firstChildElement(QStringLiteral("task"));
+        for (int n = 0; n < count && !task.isNull(); ++n,
+             task = task.nextSiblingElement(QStringLiteral("task"))) {
+            table->item(n, 4)->setText(task.attribute(QStringLiteral("ci1"), "00"));
+            table->item(n, 5)->setText(task.attribute(QStringLiteral("ci2"), "00"));
+            table->item(n, 2)->setCheckState(
+                    task.attribute(QStringLiteral("ena"), "0").toInt() ? Qt::Checked : Qt::Unchecked);
+            table->item(n, 3)->setText(task.attribute(QStringLiteral("period"), "0"));
+        }
+    } else {
+        const QDomElement slave = root.firstChildElement(QStringLiteral("slave"));
+        if (!slave.isNull()) {
+            quint16 ci2 = 0;
+            parseHex(slave.attribute(QStringLiteral("ci2"), "00"), 0xFF, ci2);
+            m_slaveCi2 = static_cast<quint8>(ci2);
+        }
+    }
+    return true;
 }

@@ -46,6 +46,10 @@ public slots:
     void applyConnectionSettings();
     // 0 disables; otherwise refresh live read-only channels every ms.
     void setAutoRefreshInterval(int ms);
+    // Bulk device operations (menu: Device > Read/Write/Apply All).
+    void readAll();   // read every configuration field from the device
+    void writeAll();  // write every field as data registers (no apply trigger)
+    void applyAll();  // writeAll + trigger 0x29 apply + persist to EEPROM (0x1E)
 
 signals:
     void statusMessage(const QString &message);
@@ -86,6 +90,12 @@ private:
     void registerHandler(quint8 addr, Handler fn) { m_handlers.insert(addr, std::move(fn)); }
     void updatePeriodItem(int n);
     void doFskReadUpdate();
+    // Bulk-update helpers (data register writes only; nothing applied here).
+    bool writeFrequency();      // false if out of range
+    void writePowerBank();
+    void writeModemParams();    // LoRa or FSK physical params + 0x2F
+    void writeAllTasks();       // all 32 task slots (master only)
+    void writeAllSettings();    // address/role/rs485 + RF bank + tasks/slave CI2
 
     Ui::ConfigPage *ui;
     std::unique_ptr<PagesDef> m_pg;
@@ -106,6 +116,8 @@ private:
     // FSK read accumulation buffers.
     quint8 m_fskBitMsb = 0, m_fskBitLsb = 0, m_fskFdevMsb = 0, m_fskFdevLsb = 0;
     int m_fskReadCount = 0;
+    // Slave instance: CI2 content (0x40) the slave returns to the master.
+    quint8 m_slaveCi2 = 0;
     // Guards the task-table editor while a row is being loaded into it, so the
     // live editor->row binding does not echo values back into the same row.
     bool m_taskLoading = false;
