@@ -9,6 +9,7 @@
 
 #include <QActionGroup>
 #include <QCoreApplication>
+#include <QDir>
 #include <QDomDocument>
 #include <QFile>
 #include <QFileDialog>
@@ -36,6 +37,20 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::onAbout);
     connect(ui->actionConnectionSettings, &QAction::triggered, this,
             &MainWindow::onConnectionSettings);
+
+    // Device > bulk operations apply to the current configuration's board.
+    connect(ui->actionReadAll, &QAction::triggered, this, [this] {
+        if (ConfigPage *page = currentPage())
+            page->readAll();
+    });
+    connect(ui->actionWriteAll, &QAction::triggered, this, [this] {
+        if (ConfigPage *page = currentPage())
+            page->writeAll();
+    });
+    connect(ui->actionApplyAll, &QAction::triggered, this, [this] {
+        if (ConfigPage *page = currentPage())
+            page->applyAll();
+    });
 
     connect(ui->actionLangEnglish, &QAction::triggered, this, [this] {
         QSettings s;
@@ -69,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
             ->setChecked(true);
 
     applyLanguage(lang); // install the startup translation before building tabs
+    populateExamples();  // File > Example Files from resource/demo/
     onNewMaster(); // start with one master configuration tab
 }
 
@@ -259,9 +275,12 @@ void MainWindow::onOpen()
 {
     const QString path = QFileDialog::getOpenFileName(this, tr("Open Configuration"), QString(),
                                                       tr("Data Radio Config (*.iml)"));
-    if (path.isEmpty())
-        return;
+    if (!path.isEmpty())
+        openPath(path);
+}
 
+void MainWindow::openPath(const QString &path)
+{
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::warning(this, tr("Open"), tr("Cannot read %1").arg(path));
@@ -297,6 +316,23 @@ void MainWindow::onOpen()
     }
     page->setFilePath(path);
     addConfigPage(page, QFileInfo(path).fileName());
+}
+
+// Populate File > Example Files from every .iml shipped in resource/demo/.
+void MainWindow::populateExamples()
+{
+    const QDir demoDir(QCoreApplication::applicationDirPath()
+                       + QStringLiteral("/resource/demo"));
+    if (!demoDir.exists())
+        return;
+    const QStringList files =
+            demoDir.entryList(QStringList(QStringLiteral("*.iml")), QDir::Files);
+    for (const QString &name : files) {
+        QAction *a = ui->menuExamples->addAction(name);
+        const QString full = demoDir.filePath(name);
+        connect(a, &QAction::triggered, this, [this, full] { openPath(full); });
+    }
+    ui->menuExamples->setEnabled(!files.isEmpty());
 }
 
 void MainWindow::onSave()

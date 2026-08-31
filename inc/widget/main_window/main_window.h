@@ -42,6 +42,8 @@ private slots:
 
 private:
     ConfigPage *currentPage() const;
+    void openPath(const QString &path);
+    void populateExamples();
     void connectPage(ConfigPage *page);
     void addConfigPage(ConfigPage *page, const QString &docName = QString());
     void saveTo(ConfigPage *page, const QString &path);
