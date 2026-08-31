@@ -535,25 +535,106 @@ void ConfigPage::wirePages()
         showFrequency();
     });
 
-    // ---- RF Parameters / Modulation ----------------------------------------
+    // ---- RF Parameters / Modulation (LoRa or FSK) ---------------------------
+    // FSK RxBw raw register value -> Hz (subset, matches SX1278 FskBandwidths).
+    const auto fskBwHz = [](int i) {
+        static const int t[4] = {125000, 166700, 200000, 250000};
+        return t[qBound(0, i, 3)];
+    };
+    const auto fskBwReg = [](int hz) {
+        // raw SX1278 RxBw value for {125,166.7,200,250} kHz
+        if (hz <= 125000) return 0x02;
+        if (hz <= 166700) return 0x11;
+        if (hz <= 200000) return 0x09;
+        return 0x01;
+    };
+    const auto fskBwIndex = [fskBwHz](uint16_t raw) {
+        switch (raw) { case 0x02: return 0; case 0x11: return 1; case 0x09: return 2; default: return 3; }
+    };
+    // Effective data rate: LoRa = SF*BW/2^SF*(4/CR); FSK = bit rate (bps).
+    const auto loraDataRate = [](int sf, int bwHz, int cr) {
+        const qlonglong ch = static_cast<qlonglong>(sf) * bwHz / (1LL << sf);
+        return ch * 4 / cr;
+    };
+    const auto updateDataRate = [this, loraDataRate] {
+        if (m_pg->modulation.comboRadio->currentIndex() == 1) {
+            const qlonglong dr = m_pg->modulation.spinFskBitrate->value();
+            m_pg->modulation.lblDataRate->setText(
+                dr >= 1000 ? tr("%1 kbps").arg(dr / 1000.0, 0, 'f', 1) : tr("%1 bps").arg(dr));
+        } else {
+            static const int bwHz[3] = {125000, 250000, 500000};
+            const int sf = 6 + m_pg->modulation.comboSf->currentIndex();
+            const int bw = bwHz[m_pg->modulation.comboBw->currentIndex()];
+            const int cr = 5 + m_pg->modulation.comboCr->currentIndex();
+            const qlonglong dr = loraDataRate(sf, bw, cr);
+            m_pg->modulation.lblDataRate->setText(tr("%1 bps").arg(dr));
+        }
+    };
+    const auto isFsk = [this] { return m_pg->modulation.comboRadio->currentIndex() == 1; };
+    // Toggle the visible parameter group for the selected modulation.
+    const auto updateModemUi = [this, isFsk, updateDataRate] {
+        const bool fsk = isFsk();
+        m_pg->modulation.lblSf->setVisible(!fsk);       m_pg->modulation.comboSf->setVisible(!fsk);
+        m_pg->modulation.lblBw->setVisible(!fsk);       m_pg->modulation.comboBw->setVisible(!fsk);
+        m_pg->modulation.lblCr->setVisible(!fsk);       m_pg->modulation.comboCr->setVisible(!fsk);
+        m_pg->modulation.lblFskBit->setVisible(fsk);    m_pg->modulation.spinFskBitrate->setVisible(fsk);
+        m_pg->modulation.lblFskFdev->setVisible(fsk);   m_pg->modulation.spinFskFdev->setVisible(fsk);
+        m_pg->modulation.lblFskBw->setVisible(fsk);     m_pg->modulation.comboFskBw->setVisible(fsk);
+        updateDataRate();
+    };
+    connect(m_pg->modulation.comboRadio, qOverload<int>(&QComboBox::currentIndexChanged), this,
+            [updateModemUi](int) { updateModemUi(); });
+    connect(m_pg->modulation.comboSf, qOverload<int>(&QComboBox::currentIndexChanged), this, updateDataRate);
+    connect(m_pg->modulation.comboBw, qOverload<int>(&QComboBox::currentIndexChanged), this, updateDataRate);
+    connect(m_pg->modulation.comboCr, qOverload<int>(&QComboBox::currentIndexChanged), this, updateDataRate);
+    connect(m_pg->modulation.spinFskBitrate, qOverload<int>(&QSpinBox::valueChanged), this, updateDataRate);
+    connect(m_pg->modulation.spinFskFdev, qOverload<int>(&QSpinBox::valueChanged), this, updateDataRate);
+    connect(m_pg->modulation.comboFskBw, qOverload<int>(&QComboBox::currentIndexChanged), this, updateDataRate);
+    updateModemUi();
+
     connect(m_pg->modulation.btnModemRead, &QPushButton::clicked, this, [this] {
-        sendRead(Proto::ADDR_SF);
-        sendRead(Proto::ADDR_BW);
-        sendRead(Proto::ADDR_CR);
+        sendRead(Proto::ADDR_RADIO);
     });
-    // Write: store the modem params to the data registers only (pending).
-    const auto writeModem = [this] {
+    // Write: store the modem params for the selected modulation (pending).
+    const auto writeModem = [this, isFsk, fskBwHz, fskBwReg] {
         static const int bwTable[3] = {125, 250, 500};
-        sendWrite(Proto::ADDR_SF, static_cast<quint16>(6 + m_pg->modulation.comboSf->currentIndex()));
-        sendWrite(Proto::ADDR_BW,
-                  static_cast<quint16>(bwTable[m_pg->modulation.comboBw->currentIndex()]));
-        sendWrite(Proto::ADDR_CR, static_cast<quint16>(5 + m_pg->modulation.comboCr->currentIndex()));
+        sendWrite(Proto::ADDR_RADIO, static_cast<quint16>(isFsk() ? 1 : 0));
+        if (isFsk()) {
+            // SX1278 FSK: BitRate = 32MHz/rate, Fdev = dev/61 (16-bit big endian).
+            const int br = static_cast<int>(32000000ULL / m_pg->modulation.spinFskBitrate->value());
+            const int fd = static_cast<int>(m_pg->modulation.spinFskFdev->value() / 61);
+            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 0), static_cast<quint16>((br >> 8) & 0xFF));
+            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 1), static_cast<quint16>(br & 0xFF));
+            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 2), static_cast<quint16>((fd >> 8) & 0xFF));
+            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 3), static_cast<quint16>(fd & 0xFF));
+            sendWrite(static_cast<quint8>(Proto::ADDR_FSK_BASE + 4),
+                      static_cast<quint16>(fskBwReg(fskBwHz(m_pg->modulation.comboFskBw->currentIndex()))));
+        } else {
+            sendWrite(Proto::ADDR_SF, static_cast<quint16>(6 + m_pg->modulation.comboSf->currentIndex()));
+            sendWrite(Proto::ADDR_BW,
+                      static_cast<quint16>(bwTable[m_pg->modulation.comboBw->currentIndex()]));
+            sendWrite(Proto::ADDR_CR, static_cast<quint16>(5 + m_pg->modulation.comboCr->currentIndex()));
+        }
     };
     connect(m_pg->modulation.btnModemWrite, &QPushButton::clicked, this, [writeModem] { writeModem(); });
     // Apply: store then trigger 0x29 so the RF bank takes effect immediately.
     connect(m_pg->modulation.btnModemApply, &QPushButton::clicked, this, [this, writeModem] {
         writeModem();
         sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
+    });
+    registerHandler(Proto::ADDR_RADIO, [this, updateModemUi](quint8, quint16 data) {
+        const bool fsk = (data & 0x01) != 0;
+        m_pg->modulation.comboRadio->setCurrentIndex(fsk ? 1 : 0);
+        updateModemUi();
+        if (fsk) {
+            m_fskReadCount = 0;
+            for (int i = 0; i < 5; ++i)
+                sendRead(static_cast<quint8>(Proto::ADDR_FSK_BASE + i));
+        } else {
+            sendRead(Proto::ADDR_SF);
+            sendRead(Proto::ADDR_BW);
+            sendRead(Proto::ADDR_CR);
+        }
     });
     registerHandler(Proto::ADDR_SF, [this](quint8, quint16 data) {
         const int sf = qBound(6, static_cast<int>(data & 0xFF), 12);
@@ -570,6 +651,36 @@ void ConfigPage::wirePages()
     registerHandler(Proto::ADDR_CR, [this](quint8, quint16 data) {
         const int cr = qBound(5, static_cast<int>(data & 0xFF), 8);
         m_pg->modulation.comboCr->setCurrentIndex(cr - 5);
+    });
+    // FSK direct-register read: accumulate until all 5 values arrived, then apply.
+    const auto fskGot = [this] {
+        if (++m_fskReadCount >= 5)
+            doFskReadUpdate();
+    };
+    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 0),
+                    [this, fskGot](quint8, quint16 data) {
+        m_fskBitMsb = static_cast<quint8>(data & 0xFF);
+        fskGot();
+    });
+    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 1),
+                    [this, fskGot](quint8, quint16 data) {
+        m_fskBitLsb = static_cast<quint8>(data & 0xFF);
+        fskGot();
+    });
+    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 2),
+                    [this, fskGot](quint8, quint16 data) {
+        m_fskFdevMsb = static_cast<quint8>(data & 0xFF);
+        fskGot();
+    });
+    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 3),
+                    [this, fskGot](quint8, quint16 data) {
+        m_fskFdevLsb = static_cast<quint8>(data & 0xFF);
+        fskGot();
+    });
+    registerHandler(static_cast<quint8>(Proto::ADDR_FSK_BASE + 4),
+                    [this, fskBwIndex, fskGot](quint8, quint16 data) {
+        m_pg->modulation.comboFskBw->setCurrentIndex(fskBwIndex(data & 0xFF));
+        fskGot();
     });
 
     // ---- RF Parameters / Power & Preamble ----------------------------------
@@ -948,6 +1059,9 @@ void ConfigPage::wirePages()
             [this] { sendWrite(Proto::ADDR_CRC_ERR_COUNT, 0); });
     connect(m_pg->counters.btnClearOvf, &QPushButton::clicked, this,
             [this] { sendWrite(Proto::ADDR_TX_OVERFLOW_COUNT, 0); });
+    // RF test (0x20 master status frame) only makes sense on the master; hide it
+    // on a slave profile page.
+    m_pg->counters.btnRfTest->setVisible(m_isMaster);
     connect(m_pg->counters.btnRfTest, &QPushButton::clicked, this,
             [this] { sendWrite(Proto::ADDR_RF_TEST, 0x0001); });
     registerHandler(Proto::ADDR_RX_COUNT, [this](quint8, quint16 data) {
@@ -1143,6 +1257,16 @@ void ConfigPage::wirePages()
     }
 }
 
+void ConfigPage::doFskReadUpdate()
+{
+    const quint16 br = static_cast<quint16>((m_fskBitMsb << 8) | m_fskBitLsb);
+    if (br)
+        m_pg->modulation.spinFskBitrate->setValue(static_cast<int>(32000000 / br));
+    const quint16 fd = static_cast<quint16>((m_fskFdevMsb << 8) | m_fskFdevLsb);
+    m_pg->modulation.spinFskFdev->setValue(fd * 61);
+    // spinFskBitrate/spinFskFdev valueChanged already refresh the data-rate label.
+}
+
 void ConfigPage::updatePeriodItem(int n)
 {
     const quint32 units = m_periodLo[n] | (static_cast<quint32>(m_periodHi[n]) << 8);
@@ -1276,6 +1400,7 @@ void ConfigPage::setBusy(bool busy)
 void ConfigPage::onWorkerOpened(const QString &portName)
 {
     m_connected = true;
+    m_disconnectWarned = false;
     setConnected(true);
     emit connectionChanged(true);
     emit statusMessage(tr("Connected to %1.").arg(portName));
@@ -1292,6 +1417,12 @@ void ConfigPage::onWorkerClosed()
 void ConfigPage::onWorkerError(const QString &message)
 {
     emit statusMessage(message);
+    // Serial error (e.g. the USB cable was pulled while connected) => warn once.
+    // A normal Disconnect goes through onWorkerClosed without this signal.
+    if (m_connected && !m_disconnectWarned) {
+        m_disconnectWarned = true;
+        QMessageBox::warning(this, tr("Connection Lost"), message);
+    }
 }
 
 void ConfigPage::onReply(quint8 head, quint8 addr, quint16 data)

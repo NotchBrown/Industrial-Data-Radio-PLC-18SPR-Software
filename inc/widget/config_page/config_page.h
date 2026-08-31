@@ -85,6 +85,7 @@ private:
     }
     void registerHandler(quint8 addr, Handler fn) { m_handlers.insert(addr, std::move(fn)); }
     void updatePeriodItem(int n);
+    void doFskReadUpdate();
 
     Ui::ConfigPage *ui;
     std::unique_ptr<PagesDef> m_pg;
@@ -94,6 +95,7 @@ private:
     bool m_isMaster;
     bool m_connected = false;
     bool m_busy = false;
+    bool m_disconnectWarned = false; // warned once for an unexpected serial error
     QString m_portName;
     QString m_filePath;
     quint16 m_mcuId[3] = {0, 0, 0};
@@ -101,6 +103,9 @@ private:
     quint16 m_freqHi = 0;
     quint8 m_periodLo[32] = {0};
     quint8 m_periodHi[32] = {0};
+    // FSK read accumulation buffers.
+    quint8 m_fskBitMsb = 0, m_fskBitLsb = 0, m_fskFdevMsb = 0, m_fskFdevLsb = 0;
+    int m_fskReadCount = 0;
     // Guards the task-table editor while a row is being loaded into it, so the
     // live editor->row binding does not echo values back into the same row.
     bool m_taskLoading = false;
