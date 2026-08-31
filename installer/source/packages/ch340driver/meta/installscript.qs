@@ -27,6 +27,12 @@ function Component()
 {
     if (installer.isUninstaller())
         return;
+    // Run the whole installer elevated once. Installing a driver / Windows
+    // update into the DriverStore needs administrator rights, and a nested
+    // Start-Process -Verb RunAs from the batch is unreliable (on some Windows 7
+    // machines it fails with "access denied" and hangs). Elevating the installer
+    // up front means the batch can call pnputil/wusa directly, no second UAC.
+    installer.gainAdminRights();
     component.loaded.connect(this, Component.prototype.installerLoaded);
 }
 
