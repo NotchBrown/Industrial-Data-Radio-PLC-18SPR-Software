@@ -134,42 +134,42 @@
        <item>
         <widget class="QCheckBox" name="chk1Dh">
          <property name="text">
-          <string>D15-8</string>
+          <string>D7-0</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk1Dl">
          <property name="text">
-          <string>D7-0</string>
+          <string>D15-8</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk1A3">
          <property name="text">
-          <string>A3</string>
+          <string>A0</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk1A2">
          <property name="text">
-          <string>A2</string>
+          <string>A1</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk1A1">
          <property name="text">
-          <string>A1</string>
+          <string>A2</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk1A0">
          <property name="text">
-          <string>A0</string>
+          <string>A3</string>
          </property>
         </widget>
        </item>
@@ -208,42 +208,42 @@
        <item>
         <widget class="QCheckBox" name="chk2Dh">
          <property name="text">
-          <string>D15-8</string>
+          <string>D7-0</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk2Dl">
          <property name="text">
-          <string>D7-0</string>
+          <string>D15-8</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk2A3">
          <property name="text">
-          <string>A3</string>
+          <string>A0</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk2A2">
          <property name="text">
-          <string>A2</string>
+          <string>A1</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk2A1">
          <property name="text">
-          <string>A1</string>
+          <string>A2</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="chk2A0">
          <property name="text">
-          <string>A0</string>
+          <string>A3</string>
          </property>
         </widget>
        </item>
