@@ -276,7 +276,7 @@
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.ui" line="82"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1387"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1399"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
@@ -352,7 +352,7 @@
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.cpp" line="86"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="938"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="954"/>
         <source>Task Table</source>
         <translation>任务表</translation>
     </message>
@@ -378,7 +378,7 @@
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.cpp" line="91"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1107"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1119"/>
         <source>Frequency Calibration</source>
         <translation>频偏校正</translation>
     </message>
@@ -393,131 +393,136 @@
         <translation>SX1278 寄存器</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="363"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="366"/>
         <source>Factory Reset</source>
         <translation>恢复出厂</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="364"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="367"/>
         <source>Reset the device to factory settings?</source>
         <translation>Reset the device to factory settings?</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="369"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="372"/>
         <source>Valid</source>
         <translation>Valid</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="369"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="372"/>
         <source>Invalid</source>
         <translation>Invalid</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="371"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="374"/>
         <source>Config saved to EEPROM.</source>
         <translation>Config saved to EEPROM.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="375"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="378"/>
         <source>Factory reset done.</source>
         <translation>Factory reset done.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="589"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="592"/>
         <source>%1 kbps</source>
         <translation>%1 千位/秒</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="589"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="596"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="592"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="599"/>
         <source>%1 bps</source>
         <translation>%1 位/秒</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="649"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="653"/>
         <source>Testing...</source>
         <translation>测试中...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="654"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="660"/>
         <source>%1 ms</source>
         <translation>%1 毫秒</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="903"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="664"/>
+        <source>RF round-trip test timed out.</source>
+        <translation>RF 往返测试超时。</translation>
+    </message>
+    <message>
+        <location filename="../../widget/config_page/config_page.cpp" line="919"/>
         <source>Task table is full (32 tasks).</source>
         <translation>Task table is full (32 tasks).</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="913"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="929"/>
         <source>At least one task is required.</source>
         <translation>至少需要 1 个任务。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="918"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="934"/>
         <source>Select a task row to delete.</source>
         <translation>请选择要删除的任务行。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="948"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="964"/>
         <source>Task %1: CI1/CI2 must be hex 00~FF.</source>
         <translation>Task %1: CI1/CI2 must be hex 00~FF.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1196"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1213"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1230"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1208"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1225"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1242"/>
         <source>Select a register row first.</source>
         <translation>Select a register row first.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1206"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1218"/>
         <source>Reading all registers...</source>
         <translation>正在读取全部寄存器...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1217"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1234"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1229"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1246"/>
         <source>Write Value must be hex 00~FF.</source>
         <translation>Write Value must be hex 00~FF.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1248"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1260"/>
         <source>Row %1: Write Value must be hex 00~FF.</source>
         <translation>Row %1: Write Value must be hex 00~FF.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1256"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1268"/>
         <source>Writing all register values...</source>
         <translation>正在写入全部寄存器值...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1425"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1437"/>
         <source>Connection Lost</source>
         <translation>连接已断开</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1457"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1469"/>
         <source>Reg 0x%1 = 0x%2.</source>
         <translation>Reg 0x%1 = 0x%2.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1520"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1532"/>
         <source>FSK: 2*Fdev + BitRate (=%1 Hz) exceeds RxBw (=%2 Hz).</source>
         <translation>FSK：2*Fdev + BitRate（=%1 Hz）超过 RxBw（=%2 Hz）。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1631"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1643"/>
         <source>Reading all settings...</source>
         <translation>正在读取全部设置...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1637"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1649"/>
         <source>All settings written (Apply required).</source>
         <translation>全部设置已写入（需要应用）。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1646"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1658"/>
         <source>All settings written, applied and saved to EEPROM.</source>
         <translation>全部设置已写入、应用并保存到EEPROM。</translation>
     </message>
@@ -530,13 +535,12 @@
         <translation type="vanished">Applying task table (160 frames)...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1079"/>
         <source>RF test frame queued.</source>
-        <translation>RF test frame queued.</translation>
+        <translation type="vanished">RF test frame queued.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="694"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1088"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="710"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1100"/>
         <source>%1 dBm</source>
         <translation>%1 dBm</translation>
     </message>
@@ -555,12 +559,12 @@
         <translation>RS-485 透传</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1492"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1504"/>
         <source>Frequency out of range: 137.000 ~ 525.000 MHz.</source>
         <translation>Frequency out of range: 137.000 ~ 525.000 MHz.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="728"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="744"/>
         <source>RF configuration applied (0x29).</source>
         <translation>RF configuration applied (0x29).</translation>
     </message>
@@ -573,32 +577,32 @@
         <translation type="vanished">No task rows to remove.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="939"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="955"/>
         <source>At least one task is required before applying.</source>
         <translation>应用前至少需要 1 个任务。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="954"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="970"/>
         <source>Task %1: interval must be at least 1/6 ms.</source>
         <translation>任务 %1：间隔必须至少为 1/6 毫秒。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="959"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="975"/>
         <source>Task %1: interval exceeds ~10.9 s limit.</source>
         <translation>Task %1: interval exceeds ~10.9 s limit.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="964"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="980"/>
         <source>Applying task table...</source>
         <translation>正在应用任务表...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1091"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1103"/>
         <source>%1 dB</source>
         <translation>%1 dB</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1108"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1120"/>
         <source>Enable the calibration switch first.</source>
         <translation>Enable the calibration switch first.</translation>
     </message>
@@ -611,32 +615,32 @@
         <translation type="vanished">Select a register first.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1285"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1297"/>
         <source>Unknown port</source>
         <translation>Unknown port</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1298"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1310"/>
         <source>No serial port selected.</source>
         <translation>No serial port selected.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1303"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1315"/>
         <source>Opening %1...</source>
         <translation>Opening %1...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1387"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1399"/>
         <source>Disconnect</source>
         <translation>断开</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1407"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1419"/>
         <source>Connected to %1.</source>
         <translation>Connected to %1.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1415"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1427"/>
         <source>Disconnected.</source>
         <translation>Disconnected.</translation>
     </message>
@@ -645,7 +649,7 @@
         <translation type="vanished">Reg 0x%1 set to 0x%2.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1470"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1482"/>
         <source>Not connected.</source>
         <translation>Not connected.</translation>
     </message>
