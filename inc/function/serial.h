@@ -93,7 +93,8 @@ public:
 public slots:
     void openPort(const QString &portName);
     void closePort();
-    void sendFrame(quint8 head, quint8 addr, quint16 data);
+    // Optional per-request reply timeout: 0 (default) uses m_replyTimeoutMs.
+    void sendFrame(quint8 head, quint8 addr, quint16 data, int timeoutMs = 0);
     void setReplyTimeout(int ms) { m_replyTimeoutMs = ms; }
 
 signals:
@@ -117,6 +118,7 @@ private:
         quint8 head;
         quint8 addr;
         quint16 data;
+        int timeoutMs = 0; // 0 => use m_replyTimeoutMs
     };
 
     void transmit(const Request &req);

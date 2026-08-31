@@ -319,12 +319,12 @@ void ConfigPage::wirePages()
     connect(m_pg->storage.btnReadConfigValid, &QPushButton::clicked, this,
             [this] { sendRead(Proto::ADDR_SAVE); });
     connect(m_pg->storage.btnSaveConfig, &QPushButton::clicked, this,
-            [this] { sendWrite(Proto::ADDR_SAVE, 0x0001); });
+            [this] { sendWriteTimeout(Proto::ADDR_SAVE, 0x0001); });
     connect(m_pg->storage.btnFactoryReset, &QPushButton::clicked, this, [this] {
         const auto ret = QMessageBox::question(this, tr("Factory Reset"),
                                                tr("Reset the device to factory settings?"));
         if (ret == QMessageBox::Yes)
-            sendWrite(Proto::ADDR_FACTORY_RESET, 0x0001);
+            sendWriteTimeout(Proto::ADDR_FACTORY_RESET, 0x0001);
     });
     registerHandler(Proto::ADDR_SAVE, [this](quint8 head, quint16 data) {
         m_pg->storage.lblConfigValid->setText(data ? tr("Valid") : tr("Invalid"));
@@ -1311,14 +1311,15 @@ void ConfigPage::onReply(quint8 head, quint8 addr, quint16 data)
         (*it)(head, data);
 }
 
-void ConfigPage::sendFrame(quint8 head, quint8 addr, quint16 data)
+void ConfigPage::sendFrame(quint8 head, quint8 addr, quint16 data, int timeoutMs)
 {
     if (!m_threads || !m_connected) {
         emit statusMessage(tr("Not connected."));
         return;
     }
     QMetaObject::invokeMethod(m_threads->worker(), "sendFrame", Q_ARG(quint8, head),
-                              Q_ARG(quint8, addr), Q_ARG(quint16, data));
+                              Q_ARG(quint8, addr), Q_ARG(quint16, data),
+                              Q_ARG(int, timeoutMs));
 }
 
 QString ConfigPage::connectionText() const

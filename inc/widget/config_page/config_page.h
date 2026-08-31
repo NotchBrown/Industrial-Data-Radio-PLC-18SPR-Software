@@ -75,9 +75,14 @@ private:
     void wirePages();
     void setConnected(bool connected);
     void setBusy(bool busy);
-    void sendFrame(quint8 head, quint8 addr, quint16 data);
+    void sendFrame(quint8 head, quint8 addr, quint16 data, int timeoutMs = 0);
     void sendRead(quint8 addr) { sendFrame(Proto::HEAD_READ, addr, 0); }
     void sendWrite(quint8 addr, quint16 data) { sendFrame(Proto::HEAD_WRITE, addr, data); }
+    // Long timeout for EEPROM writes (save/factory reset block ~1s+ on the device).
+    void sendWriteTimeout(quint8 addr, quint16 data, int ms = 6000)
+    {
+        sendFrame(Proto::HEAD_WRITE, addr, data, ms);
+    }
     void registerHandler(quint8 addr, Handler fn) { m_handlers.insert(addr, std::move(fn)); }
     void updatePeriodItem(int n);
 

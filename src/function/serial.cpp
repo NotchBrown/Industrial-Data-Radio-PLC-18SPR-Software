@@ -67,9 +67,9 @@ void SerialWorker::closePort()
     emit closed();
 }
 
-void SerialWorker::sendFrame(quint8 head, quint8 addr, quint16 data)
+void SerialWorker::sendFrame(quint8 head, quint8 addr, quint16 data, int timeoutMs)
 {
-    m_queue.enqueue({head, addr, data});
+    m_queue.enqueue({head, addr, data, timeoutMs});
     pump();
     updateBusy();
 }
@@ -92,9 +92,10 @@ void SerialWorker::pump()
 {
     if (m_awaitingReply || m_queue.isEmpty() || !m_port || !m_port->isOpen())
         return;
-    transmit(m_queue.head());
+    const Request &req = m_queue.head();
+    transmit(req);
     m_awaitingReply = true;
-    m_replyTimer.start(m_replyTimeoutMs);
+    m_replyTimer.start(req.timeoutMs > 0 ? req.timeoutMs : m_replyTimeoutMs);
 }
 
 void SerialWorker::onReadyRead()
