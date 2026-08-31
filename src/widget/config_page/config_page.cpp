@@ -166,6 +166,9 @@ ConfigPage::ConfigPage(bool master, QWidget *parent)
     wirePages();
     refreshPorts();
 
+    m_rfTestTimer = new QTimer(this);
+    m_rfTestTimer->setSingleShot(true);
+
     connect(ui->btnPortRefresh, &QToolButton::clicked, this, &ConfigPage::refreshPorts);
     connect(ui->btnConnect, &QPushButton::clicked, this, &ConfigPage::toggleConnection);
     connect(ui->treeIndex, &QTreeWidget::itemClicked, this, &ConfigPage::onTreeClicked);
@@ -643,16 +646,29 @@ void ConfigPage::wirePages()
         writeModem();
         sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
     });
-    // Test: trigger the RF test frame (0x20); the reply value is the round-trip
-    // airtime in ms for one link exchange.
+    // Test: trigger the RF test frame (0x20); the device measures one link
+    // exchange and replies with its duration in ms. A one-shot timer guards
+    // against a missing reply so the label never sticks on "Testing...".
     connect(m_pg->modulation.btnModemTest, &QPushButton::clicked, this, [this] {
         m_pg->modulation.lblRoundTripValue->setText(tr("Testing..."));
+        m_rfTestTimer->start(2500);
         sendWriteTimeout(Proto::ADDR_RF_TEST, 0x0001);
     });
     registerHandler(Proto::ADDR_RF_TEST, [this](quint8 head, quint16 data) {
+        m_rfTestTimer->stop();
         if (head == Proto::HEAD_WRITE)
             m_pg->modulation.lblRoundTripValue->setText(tr("%1 ms").arg(data));
     });
+    connect(m_rfTestTimer, &QTimer::timeout, this, [this] {
+        m_pg->modulation.lblRoundTripValue->setText(QStringLiteral("--"));
+        emit statusMessage(tr("RF round-trip test timed out."));
+    });
+    // The round-trip probe is a master-only operation; hide it on a slave page.
+    if (!m_isMaster) {
+        m_pg->modulation.btnModemTest->setVisible(false);
+        m_pg->modulation.lblRoundTrip->setVisible(false);
+        m_pg->modulation.lblRoundTripValue->setVisible(false);
+    }
     registerHandler(Proto::ADDR_RADIO, [this, updateModemUi](quint8, quint16 data) {
         const bool fsk = (data & 0x01) != 0;
         m_pg->modulation.comboRadio->setCurrentIndex(fsk ? 1 : 0);
@@ -1073,10 +1089,6 @@ void ConfigPage::wirePages()
     });
     registerHandler(Proto::ADDR_TX_OVERFLOW_COUNT, [this](quint8, quint16 data) {
         m_pg->counters.editTxOverflow->setText(QString::number(data));
-    });
-    registerHandler(Proto::ADDR_RF_TEST, [this](quint8 head, quint16) {
-        if (head == Proto::HEAD_WRITE)
-            emit statusMessage(tr("RF test frame queued."));
     });
 
     // ---- Debug & Statistics / RSSI / SNR -----------------------------------

@@ -102,6 +102,7 @@ private:
     ThreadManager *m_threads = nullptr;
     QHash<quint8, Handler> m_handlers;
     QTimer *m_autoTimer = nullptr;
+    QTimer *m_rfTestTimer = nullptr; // resets the round-trip label if no reply
     bool m_isMaster;
     bool m_connected = false;
     bool m_busy = false;
