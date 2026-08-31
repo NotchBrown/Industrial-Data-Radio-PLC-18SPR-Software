@@ -69,7 +69,18 @@ enum Addr : quint8 {
     ADDR_SYNCWORD = 0x37,
     ADDR_LNA = 0x38,
     ADDR_RADIO = 0x2F,       // modem: 0 = LoRa, 1 = FSK (a write also applies RF)
-    ADDR_FSK_BASE = 0x39,    // FSK direct SX1278 regs: +0/+1 BitRate, +2/+3 Fdev, +4 RxBw
+    // FSK physical params live on the 0x60..0x7F SX1278 direct-write page:
+    //   +2/+3 BitRateMSB/LSB(0x02/03), +4/+5 FdevMSB/LSB(0x04/05), +0x12 RxBw, +0x13 AfcBw
+    ADDR_FSK_PA    = 0x69,   // PA config (0x09)
+    ADDR_FSK_LNA   = 0x6C,   // LNA (0x0C)
+    ADDR_FSK_RXCFG = 0x6D,   // RxConfig (0x0D)
+    ADDR_FSK_RXBW  = 0x72,   // RxBw (0x12)
+    ADDR_FSK_AFCBW = 0x73,   // AfcBw (0x13)
+    // FSK packet-format direct regs (0x39..0x3E -> SX1278 0x30/31/32/28):
+    ADDR_FSK_PKT1  = 0x39,   // PACKETCONFIG1 (0x30)
+    ADDR_FSK_PKT2  = 0x3A,   // PACKETCONFIG2 (0x31)
+    ADDR_FSK_PAYLOAD = 0x3B, // PAYLOADLENGTH (0x32)
+    ADDR_FSK_SYNC  = 0x3E,   // SYNCVALUE1 (0x28)
     ADDR_REG_BASE = 0x60,
     ADDR_TASK_BASE = 0x80
 };
