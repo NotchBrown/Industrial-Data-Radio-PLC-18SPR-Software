@@ -617,15 +617,15 @@ void ConfigPage::wirePages()
     connect(m_pg->modulation.spinFskFdev, qOverload<int>(&QSpinBox::valueChanged), this, updateDataRate);
     connect(m_pg->modulation.comboFskBw, qOverload<int>(&QComboBox::currentIndexChanged), this, updateDataRate);
     // SX1278 FSK bounds: BitRate 1.2..300 kbps, Fdev 0.6..200 kHz. The receiver
-    // bandwidth must also satisfy 2*Fdev + BitRate <= RxBw, so the maximum
-    // Fdev is clamped live from the selected RxBw and bit rate.
+    // filter must satisfy RxBw >= Fdev + BitRate/2 (single-sided IF bandwidth),
+    // so the maximum Fdev is clamped live from the selected RxBw and bit rate.
     m_pg->modulation.spinFskBitrate->setRange(1200, 300000);
     m_pg->modulation.spinFskFdev->setRange(600, 200000);
     const auto updateFskFdevMax = [this] {
         static const int bwHz[4] = {125000, 166700, 200000, 250000};
         const int bitrate = m_pg->modulation.spinFskBitrate->value();
         const int rxbw = bwHz[qBound(0, m_pg->modulation.comboFskBw->currentIndex(), 3)];
-        const int maxFdev = qMax(600, qMin(200000, (rxbw - bitrate) / 2));
+        const int maxFdev = qMax(600, qMin(200000, rxbw - bitrate / 2));
         m_pg->modulation.spinFskFdev->setMaximum(maxFdev);
     };
     updateFskFdevMax();
@@ -916,7 +916,8 @@ void ConfigPage::wirePages()
         connect(m_pg->tasks.btnTaskAdd, &QPushButton::clicked, this, [this, t, ensureTaskRows,
                                                                       refreshTaskNumbers] {
             if (t->rowCount() >= 32) {
-                emit statusMessage(tr("Task table is full (32 tasks)."));
+                QMessageBox::warning(this, tr("Task Table"),
+                                     tr("Task table is full (32 tasks)."));
                 return;
             }
             ensureTaskRows(t->rowCount() + 1);
@@ -926,12 +927,14 @@ void ConfigPage::wirePages()
         connect(m_pg->tasks.btnTaskDelete, &QPushButton::clicked, this,
                 [this, t, refreshTaskNumbers] {
                     if (t->rowCount() <= 1) {
-                        emit statusMessage(tr("At least one task is required."));
+                        QMessageBox::warning(this, tr("Task Table"),
+                                             tr("At least one task is required."));
                         return;
                     }
                     const int n = t->currentRow();
                     if (n < 0) {
-                        emit statusMessage(tr("Select a task row to delete."));
+                        QMessageBox::warning(this, tr("Task Table"),
+                                             tr("Select a task row to delete."));
                         return;
                     }
                     t->removeRow(n);
@@ -961,18 +964,23 @@ void ConfigPage::wirePages()
                 quint16 c1 = 0, c2 = 0;
                 if (!parseHex(table->item(n, 4)->text(), 0xFF, c1)
                         || !parseHex(table->item(n, 5)->text(), 0xFF, c2)) {
-                    emit statusMessage(tr("Task %1: CI1/CI2 must be hex 00~FF.").arg(n));
+                    QMessageBox::warning(this, tr("Task Table"),
+                                         tr("Task %1: CI1/CI2 must be hex 00~FF.").arg(n));
                     return;
                 }
                 bool ok = false;
                 const double periodMs = table->item(n, 3)->text().toDouble(&ok);
                 if (!ok || periodMs < 1.0 / 6.0) {
-                    emit statusMessage(tr("Task %1: interval must be at least 1/6 ms.").arg(n));
+                    QMessageBox::warning(this, tr("Task Table"),
+                                         tr("Task %1: interval must be at least 1/6 ms.")
+                                                 .arg(n));
                     return;
                 }
                 const qint64 units = qRound64(periodMs * 6.0);
                 if (units < 1 || units > 0xFFFF) {
-                    emit statusMessage(tr("Task %1: interval exceeds ~10.9 s limit.").arg(n));
+                    QMessageBox::warning(this, tr("Task Table"),
+                                         tr("Task %1: interval exceeds ~10.9 s limit.")
+                                                 .arg(n));
                     return;
                 }
             }
@@ -1205,7 +1213,8 @@ void ConfigPage::wirePages()
         connect(m_pg->regPage.btnRegRead, &QPushButton::clicked, this, [this, t] {
             const int row = t->currentRow();
             if (row < 0) {
-                emit statusMessage(tr("Select a register row first."));
+                QMessageBox::warning(this, tr("Register Access"),
+                                     tr("Select a register row first."));
                 return;
             }
             sendRead(static_cast<quint8>(Proto::ADDR_REG_BASE | (row & 0x1F)));
@@ -1222,11 +1231,13 @@ void ConfigPage::wirePages()
                 [this, t, validateWriteValue] {
                     const int row = t->currentRow();
                     if (row < 0) {
-                        emit statusMessage(tr("Select a register row first."));
+                        QMessageBox::warning(this, tr("Register Access"),
+                                             tr("Select a register row first."));
                         return;
                     }
                     if (!validateWriteValue(row)) {
-                        emit statusMessage(tr("Write Value must be hex 00~FF."));
+                        QMessageBox::warning(this, tr("Register Access"),
+                                             tr("Write Value must be hex 00~FF."));
                         return;
                     }
                     quint16 v = 0;
@@ -1239,11 +1250,13 @@ void ConfigPage::wirePages()
                 [this, t, validateWriteValue] {
                     const int row = t->currentRow();
                     if (row < 0) {
-                        emit statusMessage(tr("Select a register row first."));
+                        QMessageBox::warning(this, tr("Register Access"),
+                                             tr("Select a register row first."));
                         return;
                     }
                     if (!validateWriteValue(row)) {
-                        emit statusMessage(tr("Write Value must be hex 00~FF."));
+                        QMessageBox::warning(this, tr("Register Access"),
+                                             tr("Write Value must be hex 00~FF."));
                         return;
                     }
                     quint16 v = 0;
@@ -1256,7 +1269,8 @@ void ConfigPage::wirePages()
                 [this, t, validateWriteValue] {
                     for (int r = 0; r < 32; ++r) {
                         if (!validateWriteValue(r)) {
-                            emit statusMessage(
+                            QMessageBox::warning(
+                                    this, tr("Register Access"),
                                     tr("Row %1: Write Value must be hex 00~FF.").arg(r));
                             return;
                         }
@@ -1307,7 +1321,7 @@ void ConfigPage::toggleConnection()
     }
     const QString portName = ui->comboPort->currentData().toString();
     if (portName.isEmpty()) {
-        emit statusMessage(tr("No serial port selected."));
+        QMessageBox::warning(this, tr("Connection"), tr("No serial port selected."));
         return;
     }
     ensureThreads();
@@ -1501,7 +1515,8 @@ bool ConfigPage::writeFrequency()
     const double val = m_pg->frequency.spinFreq->value();
     const quint64 hz = static_cast<quint64>(mhz ? val * 1e6 : val * 1e3);
     if (hz < 137000000ull || hz > 525000000ull) {
-        emit statusMessage(tr("Frequency out of range: 137.000 ~ 525.000 MHz."));
+        QMessageBox::warning(this, tr("Carrier Frequency"),
+                             tr("Frequency out of range: 137.000 ~ 525.000 MHz."));
         return false;
     }
     sendWrite(Proto::ADDR_FREQ_LO, static_cast<quint16>(hz & 0xFFFF));
@@ -1522,16 +1537,18 @@ void ConfigPage::writeModemParams()
     const bool fsk = m_pg->modulation.comboRadio->currentIndex() == 1;
     sendWrite(Proto::ADDR_RADIO, static_cast<quint16>(fsk ? 1 : 0));
     if (fsk) {
-        // SX1278 FSK: reject combinations that the receiver cannot demodulate
-        // (the occupied channel 2*Fdev + BitRate must fit inside the RxBw IF).
+        // SX1278 FSK: reject combinations the receiver cannot demodulate
+        // (single-sided IF bandwidth must cover Fdev + BitRate/2 inside RxBw).
         static const int fskBwHz[4] = {125000, 166700, 200000, 250000};
         const int bitrate = m_pg->modulation.spinFskBitrate->value();
         const int fdev = m_pg->modulation.spinFskFdev->value();
         const int rxbw = fskBwHz[qBound(0, m_pg->modulation.comboFskBw->currentIndex(), 3)];
-        if (2 * fdev + bitrate > rxbw) {
-            emit statusMessage(tr("FSK: 2*Fdev + BitRate (=%1 Hz) exceeds RxBw (=%2 Hz).")
-                                       .arg(2 * fdev + bitrate)
-                                       .arg(rxbw));
+        if (fdev + bitrate / 2 > rxbw) {
+            QMessageBox::warning(
+                    this, tr("Modulation"),
+                    tr("FSK: Fdev + BitRate/2 (=%1 Hz) exceeds RxBw (=%2 Hz).")
+                            .arg(fdev + bitrate / 2)
+                            .arg(rxbw));
             return;
         }
         const int br = static_cast<int>(32000000ULL / bitrate);
@@ -1567,13 +1584,28 @@ void ConfigPage::writeAllTasks()
         quint16 ci1 = 0, ci2 = 0;
         int ena = 0;
         if (n < table->rowCount()) {
-            parseHex(table->item(n, 4)->text(), 0xFF, ci1);
-            parseHex(table->item(n, 5)->text(), 0xFF, ci2);
-            ena = table->item(n, 2)->checkState() == Qt::Checked ? 1 : 0;
+            // Reject invalid rows before writing any of the task slots (visible
+            // warning, not a status-bar hint, so the user cannot miss it).
+            if (!parseHex(table->item(n, 4)->text(), 0xFF, ci1)
+                    || !parseHex(table->item(n, 5)->text(), 0xFF, ci2)) {
+                QMessageBox::warning(this, tr("Task Table"),
+                                     tr("Task %1: CI1/CI2 must be hex 00~FF.").arg(n));
+                return;
+            }
             bool ok = false;
             const double periodMs = table->item(n, 3)->text().toDouble(&ok);
-            qint64 units = ok ? qRound64(periodMs * 6.0) : 6;
-            units = qBound<qint64>(1, units, 0xFFFF);
+            if (!ok || periodMs < 1.0 / 6.0) {
+                QMessageBox::warning(this, tr("Task Table"),
+                                     tr("Task %1: interval must be at least 1/6 ms.").arg(n));
+                return;
+            }
+            const qint64 units = qRound64(periodMs * 6.0);
+            if (units < 1 || units > 0xFFFF) {
+                QMessageBox::warning(this, tr("Task Table"),
+                                     tr("Task %1: interval exceeds ~10.9 s limit.").arg(n));
+                return;
+            }
+            ena = table->item(n, 2)->checkState() == Qt::Checked ? 1 : 0;
             sendWrite(Proto::taskPeriodLo(n), static_cast<quint16>(units & 0xFF));
             sendWrite(Proto::taskPeriodHi(n), static_cast<quint16>((units >> 8) & 0xFF));
         }
