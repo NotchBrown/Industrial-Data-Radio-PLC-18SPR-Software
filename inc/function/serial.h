@@ -68,6 +68,8 @@ enum Addr : quint8 {
     ADDR_PREAMBLE = 0x36,
     ADDR_SYNCWORD = 0x37,
     ADDR_LNA = 0x38,
+    ADDR_RADIO = 0x2F,       // modem: 0 = LoRa, 1 = FSK (a write also applies RF)
+    ADDR_FSK_BASE = 0x39,    // FSK direct SX1278 regs: +0/+1 BitRate, +2/+3 Fdev, +4 RxBw
     ADDR_REG_BASE = 0x60,
     ADDR_TASK_BASE = 0x80
 };
