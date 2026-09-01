@@ -40,8 +40,10 @@ echo --- pnputil exit code: %rc% --- >> "%USERLOG%"
 rem ---- 2. if Windows 7 lacks the SHA-2 patch, warn (non-blocking) ----
 if "%OSVER%"=="6.1" if not defined PATCHED (
     echo SHA2_PATCH_MISSING_DRIVER_MAY_NOT_ACTIVATE >> "%USERLOG%"
-    rem Detached, hidden notice: the installer does NOT wait for this process.
-    start "" powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('The CH340 driver was registered, but this Windows 7 is missing the SHA-2 (SHA-256) code-signing patch, so the driver may not activate until it is installed.' + [char]13 + [char]10 + [char]13 + [char]10 + 'Please install KB4474419 from the Microsoft Update Catalog (search: KB4474419), restart this PC, then re-run the IDR Configurator installer.', 'IDR Configurator - SHA-2 support required', 'OK', 'Warning')" >nul 2>&1
+    rem Show a one-off system-message notice via the built-in msg.exe (no script
+    rem engine spawned, so it is not flagged as a downloader trojan). Detached:
+    rem the installer does NOT wait for this process to return.
+    start "" msg.exe * "The CH340 driver was registered, but this Windows 7 is missing the SHA-2 (SHA-256) code-signing patch, so the driver may not activate until it is installed. Please install KB4474419 from the Microsoft Update Catalog, restart this PC, then re-run the IDR Configurator installer."
 )
 
 if "%rc%"=="3010" exit /b 0
