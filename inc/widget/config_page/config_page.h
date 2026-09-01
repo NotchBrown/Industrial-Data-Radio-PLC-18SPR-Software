@@ -103,6 +103,7 @@ private:
     QHash<quint8, Handler> m_handlers;
     QTimer *m_autoTimer = nullptr;
     QTimer *m_rfTestTimer = nullptr; // resets the round-trip label if no reply
+    QTimer *m_rfPollTimer = nullptr; // polls 0x20 until the true RTT is ready
     bool m_isMaster;
     bool m_connected = false;
     bool m_busy = false;

@@ -168,6 +168,8 @@ ConfigPage::ConfigPage(bool master, QWidget *parent)
 
     m_rfTestTimer = new QTimer(this);
     m_rfTestTimer->setSingleShot(true);
+    m_rfPollTimer = new QTimer(this);
+    m_rfPollTimer->setInterval(150);
 
     connect(ui->btnPortRefresh, &QToolButton::clicked, this, &ConfigPage::refreshPorts);
     connect(ui->btnConnect, &QPushButton::clicked, this, &ConfigPage::toggleConnection);
@@ -646,20 +648,31 @@ void ConfigPage::wirePages()
         writeModem();
         sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
     });
-    // Test: trigger the RF test frame (0x20); the device measures one link
-    // exchange and replies with its duration in ms. A one-shot timer guards
-    // against a missing reply so the label never sticks on "Testing...".
+    // Test: trigger one TRUE RF round-trip (0x20). The device forces a task-0 send
+    // and, on receiving the slave's reply, stores the elapsed time in RF_RTT_MS.
+    // Trigger write returns 0; the answer is polled back via 0x20 read (0xFFFF = pending).
     connect(m_pg->modulation.btnModemTest, &QPushButton::clicked, this, [this] {
-        m_pg->modulation.lblRoundTripValue->setText(tr("Testing..."));
-        m_rfTestTimer->start(2500);
-        sendWriteTimeout(Proto::ADDR_RF_TEST, 0x0001);
+        m_pg->modulation.lblRoundTripValue->setText(tr("Measuring..."));
+        m_rfTestTimer->start(4000);
+        m_rfPollTimer->stop(); m_rfPollTimer->start();
+        sendWriteTimeout(Proto::ADDR_RF_TEST, 0x0001);       // trigger measurement
+        sendRead(Proto::ADDR_RF_TEST);                       // immediate first poll
+    });
+    // Poll the 0x20 read result until the round trip completes.
+    connect(m_rfPollTimer, &QTimer::timeout, this, [this] {
+        sendRead(Proto::ADDR_RF_TEST);
     });
     registerHandler(Proto::ADDR_RF_TEST, [this](quint8 head, quint16 data) {
+        if (head != Proto::HEAD_READ)
+            return;                      // write reply (0 = trigger ack) is not the result
+        if (data == 0xFFFF)
+            return;                      // still measuring
         m_rfTestTimer->stop();
-        if (head == Proto::HEAD_WRITE)
-            m_pg->modulation.lblRoundTripValue->setText(tr("%1 ms").arg(data));
+        m_rfPollTimer->stop();
+        m_pg->modulation.lblRoundTripValue->setText(tr("%1 ms").arg(static_cast<int>(data)));
     });
     connect(m_rfTestTimer, &QTimer::timeout, this, [this] {
+        m_rfPollTimer->stop();
         m_pg->modulation.lblRoundTripValue->setText(QStringLiteral("--"));
         emit statusMessage(tr("RF round-trip test timed out."));
     });
@@ -717,12 +730,14 @@ void ConfigPage::wirePages()
         sendRead(Proto::ADDR_PREAMBLE);
         sendRead(Proto::ADDR_SYNCWORD);
         sendRead(Proto::ADDR_LNA);
+        sendRead(Proto::ADDR_LONG_RANGE);
     });
     connect(m_pg->power.btnRfCfgWrite, &QPushButton::clicked, this, [this] {
         sendWrite(Proto::ADDR_POWER, static_cast<quint16>(m_pg->power.spinPower->value()));
         sendWrite(Proto::ADDR_PREAMBLE, static_cast<quint16>(m_pg->power.spinPreamble->value()));
         sendWrite(Proto::ADDR_SYNCWORD, static_cast<quint16>(m_pg->power.spinSyncword->value()));
         sendWrite(Proto::ADDR_LNA, static_cast<quint16>(m_pg->power.spinLna->value()));
+        sendWrite(Proto::ADDR_LONG_RANGE, m_pg->power.chkLongRange->isChecked() ? 1 : 0);
     });
     registerHandler(Proto::ADDR_POWER, [this](quint8, quint16 data) {
         m_pg->power.spinPower->setValue(data & 0xFF);
@@ -737,6 +752,7 @@ void ConfigPage::wirePages()
         sendWrite(Proto::ADDR_PREAMBLE, static_cast<quint16>(m_pg->power.spinPreamble->value()));
         sendWrite(Proto::ADDR_SYNCWORD, static_cast<quint16>(m_pg->power.spinSyncword->value()));
         sendWrite(Proto::ADDR_LNA, static_cast<quint16>(m_pg->power.spinLna->value()));
+        sendWrite(Proto::ADDR_LONG_RANGE, m_pg->power.chkLongRange->isChecked() ? 1 : 0);
         sendWrite(Proto::ADDR_APPLY_RF, 0x0001);
     });
     registerHandler(Proto::ADDR_APPLY_RF, [this](quint8 head, quint16) {
@@ -751,6 +767,9 @@ void ConfigPage::wirePages()
     });
     registerHandler(Proto::ADDR_LNA, [this](quint8, quint16 data) {
         m_pg->power.spinLna->setValue(data & 0xFF);
+    });
+    registerHandler(Proto::ADDR_LONG_RANGE, [this](quint8, quint16 data) {
+        m_pg->power.chkLongRange->setChecked(data & 0xFF);
     });
 
     // ---- TX Task Table (master only) ---------------------------------------
@@ -961,6 +980,10 @@ void ConfigPage::wirePages()
             // Validate every visible row first, so a bad row aborts before any
             // partial write reaches the device.
             for (int n = 0; n < table->rowCount(); ++n) {
+                // Only an enabled task consumes a radio slot, so a disabled row
+                // (interval 0 / not filled) must not block the write of others.
+                if (table->item(n, 2)->checkState() != Qt::Checked)
+                    continue;
                 quint16 c1 = 0, c2 = 0;
                 if (!parseHex(table->item(n, 4)->text(), 0xFF, c1)
                         || !parseHex(table->item(n, 5)->text(), 0xFF, c2)) {
@@ -1530,6 +1553,7 @@ void ConfigPage::writePowerBank()
     sendWrite(Proto::ADDR_PREAMBLE, static_cast<quint16>(m_pg->power.spinPreamble->value()));
     sendWrite(Proto::ADDR_SYNCWORD, static_cast<quint16>(m_pg->power.spinSyncword->value()));
     sendWrite(Proto::ADDR_LNA, static_cast<quint16>(m_pg->power.spinLna->value()));
+    sendWrite(Proto::ADDR_LONG_RANGE, m_pg->power.chkLongRange->isChecked() ? 1 : 0);
 }
 
 void ConfigPage::writeModemParams()
@@ -1561,7 +1585,8 @@ void ConfigPage::writeModemParams()
         sendWrite(static_cast<quint8>(0x65), static_cast<quint16>(fd & 0xFF));
         sendWrite(Proto::ADDR_FSK_RXBW, static_cast<quint16>(bwr));
         sendWrite(Proto::ADDR_FSK_AFCBW, static_cast<quint16>(bwr));
-        sendWrite(Proto::ADDR_FSK_PA, 0x8F);      // PA enable + power=15 (matches demo)
+        sendWrite(Proto::ADDR_FSK_PA,
+                  static_cast<quint16>(0x80 | (m_pg->power.spinPower->value() & 0x0F)));
         sendWrite(Proto::ADDR_FSK_LNA, 0x23);
         sendWrite(Proto::ADDR_FSK_RXCFG, 0x1E);
         sendWrite(Proto::ADDR_FSK_PKT1, 0x90);
@@ -1581,11 +1606,12 @@ void ConfigPage::writeAllTasks()
 {
     QTableWidget *table = m_pg->tasks.tableTasks;
     for (int n = 0; n < 32; ++n) {
+        const bool hasRow = n < table->rowCount();
+        const bool en = hasRow && table->item(n, 2)->checkState() == Qt::Checked;
         quint16 ci1 = 0, ci2 = 0;
-        int ena = 0;
-        if (n < table->rowCount()) {
-            // Reject invalid rows before writing any of the task slots (visible
-            // warning, not a status-bar hint, so the user cannot miss it).
+        if (en) {
+            // A disabled row must not block the write; only validate (popup,
+            // not a status-bar hint) the enabled tasks actually sent on air.
             if (!parseHex(table->item(n, 4)->text(), 0xFF, ci1)
                     || !parseHex(table->item(n, 5)->text(), 0xFF, ci2)) {
                 QMessageBox::warning(this, tr("Task Table"),
@@ -1605,12 +1631,11 @@ void ConfigPage::writeAllTasks()
                                      tr("Task %1: interval exceeds ~10.9 s limit.").arg(n));
                 return;
             }
-            ena = table->item(n, 2)->checkState() == Qt::Checked ? 1 : 0;
             sendWrite(Proto::taskPeriodLo(n), static_cast<quint16>(units & 0xFF));
             sendWrite(Proto::taskPeriodHi(n), static_cast<quint16>((units >> 8) & 0xFF));
         }
         sendWrite(Proto::taskCi1(n), ci1);
-        sendWrite(Proto::taskEna(n), static_cast<quint16>(ena));
+        sendWrite(Proto::taskEna(n), static_cast<quint16>(en ? 1 : 0));
         sendWrite(Proto::taskCi2(n), ci2);
     }
 }
@@ -1656,6 +1681,7 @@ void ConfigPage::readAll()
     sendRead(Proto::ADDR_PREAMBLE);
     sendRead(Proto::ADDR_SYNCWORD);
     sendRead(Proto::ADDR_LNA);
+    sendRead(Proto::ADDR_LONG_RANGE);
     sendRead(Proto::ADDR_RSSI);
     sendRead(Proto::ADDR_SNR);
     sendRead(Proto::ADDR_RX_COUNT);
@@ -1725,6 +1751,8 @@ bool ConfigPage::toXml(QDomDocument &doc) const
     power.setAttribute(QStringLiteral("preamble"), m_pg->power.spinPreamble->value());
     power.setAttribute(QStringLiteral("sync"), m_pg->power.spinSyncword->value());
     power.setAttribute(QStringLiteral("lna"), m_pg->power.spinLna->value());
+    power.setAttribute(QStringLiteral("longrange"),
+                       m_pg->power.chkLongRange->isChecked() ? 1 : 0);
     root.appendChild(power);
 
     static const int baudTable[8] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
@@ -1798,6 +1826,8 @@ bool ConfigPage::fromXml(const QDomDocument &doc)
         m_pg->power.spinPreamble->setValue(power.attribute(QStringLiteral("preamble"), "8").toInt());
         m_pg->power.spinSyncword->setValue(power.attribute(QStringLiteral("sync"), "18").toInt());
         m_pg->power.spinLna->setValue(power.attribute(QStringLiteral("lna"), "35").toInt());
+        m_pg->power.chkLongRange->setChecked(
+                power.attribute(QStringLiteral("longrange"), "0").toInt());
     }
 
     const QDomElement rs485 = root.firstChildElement(QStringLiteral("rs485"));

@@ -69,6 +69,7 @@ enum Addr : quint8 {
     ADDR_SYNCWORD = 0x37,
     ADDR_LNA = 0x38,
     ADDR_RADIO = 0x2F,       // modem: 0 = LoRa, 1 = FSK (a write also applies RF)
+    ADDR_LONG_RANGE = 0x3F, // 1 = long-range mode (firmware scales RF timeouts; EEPROM)
     // FSK physical params live on the 0x60..0x7F SX1278 direct-write page:
     //   +2/+3 BitRateMSB/LSB(0x02/03), +4/+5 FdevMSB/LSB(0x04/05), +0x12 RxBw, +0x13 AfcBw
     ADDR_FSK_PA    = 0x69,   // PA config (0x09)
