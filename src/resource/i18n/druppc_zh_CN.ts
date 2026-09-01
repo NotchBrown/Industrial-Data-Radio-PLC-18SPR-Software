@@ -4,10 +4,6 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <source>About IDR Configurator</source>
-        <translation type="vanished">关于 IDR Configurator</translation>
-    </message>
-    <message>
         <location filename="../../widget/about/about.ui" line="14"/>
         <source>About DRUPPC</source>
         <translation>关于 DRUPPC</translation>
@@ -55,33 +51,13 @@
         <source>Apply</source>
         <translation>应用</translation>
     </message>
-    <message>
-        <source>Hint: stored in EEPROM; use Storage to save after write.</source>
-        <translation type="vanished">Hint: stored in EEPROM; use Storage to save after write.</translation>
-    </message>
 </context>
 <context>
     <name>AnalogPage</name>
     <message>
-        <source>Read AI</source>
-        <translation type="vanished">读取 AI</translation>
-    </message>
-    <message>
-        <source>Analog Inputs AI0~AI3 (10-bit, 0-10 V / 0-20 mA)</source>
-        <translation type="vanished">Analog Inputs AI0~AI3 (10-bit, 0-10 V / 0-20 mA)</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/pages/analog_page.ui" line="30"/>
         <source>AI0</source>
         <translation>AI0</translation>
-    </message>
-    <message>
-        <source>V</source>
-        <translation type="vanished">V</translation>
-    </message>
-    <message>
-        <source>mA</source>
-        <translation type="vanished">mA</translation>
     </message>
     <message>
         <location filename="../../widget/config_page/pages/analog_page.ui" line="37"/>
@@ -99,17 +75,9 @@
         <translation>AI3</translation>
     </message>
     <message>
-        <source>Analog Outputs AO0~AO3 (dial = 10-bit DAC, 0-10 V / 0-20 mA)</source>
-        <translation type="vanished">Analog Outputs AO0~AO3 (dial = 10-bit DAC, 0-10 V / 0-20 mA)</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/pages/analog_page.ui" line="22"/>
         <source>Analog Inputs AI0~AI3</source>
         <translation>模拟输入 AI0~AI3</translation>
-    </message>
-    <message>
-        <source>Analog Outputs AO0~AO3 (0-10 V / 0-20 mA)</source>
-        <translation type="vanished">模拟输出 AO0~AO3（0-10 V / 0-20 mA）</translation>
     </message>
     <message>
         <location filename="../../widget/config_page/pages/analog_page.ui" line="69"/>
@@ -190,22 +158,6 @@
         <source>Apply</source>
         <translation>应用</translation>
     </message>
-    <message>
-        <source>Output Dials (10-bit)</source>
-        <translation type="vanished">输出旋钮（10 位）</translation>
-    </message>
-    <message>
-        <source>Read AO</source>
-        <translation type="vanished">读取 AO</translation>
-    </message>
-    <message>
-        <source>Apply AO</source>
-        <translation type="vanished">应用 AO</translation>
-    </message>
-    <message>
-        <source>Hint: 10-bit (0~1023). Voltage and current are both shown for every channel (linear over full scale); the wiring selects which output the analog stage drives.</source>
-        <translation type="vanished">Hint: 10-bit (0~1023). Voltage and current are both shown for every channel (linear over full scale); the wiring selects which output the analog stage drives.</translation>
-    </message>
 </context>
 <context>
     <name>CalibrationPage</name>
@@ -249,18 +201,6 @@
         <source>Calibrate</source>
         <translation>校正</translation>
     </message>
-    <message>
-        <source>Apply Switch / Value</source>
-        <translation type="vanished">应用开关/数值</translation>
-    </message>
-    <message>
-        <source>Trigger Calibration</source>
-        <translation type="vanished">触发校正</translation>
-    </message>
-    <message>
-        <source>Hint: triggering requires the switch on; value and switch are stored in EEPROM. Status is a raw 0~3 value.</source>
-        <translation type="vanished">Hint: triggering requires the switch on; value and switch are stored in EEPROM. Status is a raw 0~3 value.</translation>
-    </message>
 </context>
 <context>
     <name>ConfigPage</name>
@@ -276,7 +216,7 @@
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.ui" line="82"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1413"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1423"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
@@ -337,13 +277,13 @@
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.cpp" line="82"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1518"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1528"/>
         <source>Carrier Frequency</source>
         <translation>载波频率</translation>
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.cpp" line="83"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1548"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1559"/>
         <source>Modulation</source>
         <translation>调制</translation>
     </message>
@@ -354,16 +294,16 @@
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.cpp" line="86"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="919"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="930"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="925"/>
         <location filename="../../widget/config_page/config_page.cpp" line="936"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="957"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="967"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="974"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="981"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1591"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1598"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="942"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="963"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="977"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="984"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="991"/>
         <location filename="../../widget/config_page/config_page.cpp" line="1604"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1611"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1617"/>
         <source>Task Table</source>
         <translation>任务表</translation>
     </message>
@@ -389,18 +329,18 @@
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.cpp" line="91"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1127"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1137"/>
         <source>Frequency Calibration</source>
         <translation>频偏校正</translation>
     </message>
     <message>
         <location filename="../../widget/config_page/config_page.cpp" line="92"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1216"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1234"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1239"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1253"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1258"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1273"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1226"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1244"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1249"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1263"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1268"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1283"/>
         <source>Register Access</source>
         <translation>寄存器访问</translation>
     </message>
@@ -466,108 +406,92 @@
         <translation>RF 往返测试超时。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="920"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="926"/>
         <source>Task table is full (32 tasks).</source>
         <translation>Task table is full (32 tasks).</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="931"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="937"/>
         <source>At least one task is required.</source>
         <translation>至少需要 1 个任务。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="937"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="943"/>
         <source>Select a task row to delete.</source>
         <translation>请选择要删除的任务行。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="968"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1592"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="978"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1605"/>
         <source>Task %1: CI1/CI2 must be hex 00~FF.</source>
         <translation>Task %1: CI1/CI2 must be hex 00~FF.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1217"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1235"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1254"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1227"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1245"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1264"/>
         <source>Select a register row first.</source>
         <translation>Select a register row first.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1227"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1237"/>
         <source>Reading all registers...</source>
         <translation>正在读取全部寄存器...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1240"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1259"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1250"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1269"/>
         <source>Write Value must be hex 00~FF.</source>
         <translation>Write Value must be hex 00~FF.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1274"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1284"/>
         <source>Row %1: Write Value must be hex 00~FF.</source>
         <translation>Row %1: Write Value must be hex 00~FF.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1282"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1292"/>
         <source>Writing all register values...</source>
         <translation>正在写入全部寄存器值...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1324"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1334"/>
         <source>Connection</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1451"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1461"/>
         <source>Connection Lost</source>
         <translation>连接已断开</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1483"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1493"/>
         <source>Reg 0x%1 = 0x%2.</source>
         <translation>Reg 0x%1 = 0x%2.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1549"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1560"/>
         <source>FSK: Fdev + BitRate/2 (=%1 Hz) exceeds RxBw (=%2 Hz).</source>
         <translation>FSK：Fdev + BitRate/2（=%1 Hz）超过 RxBw（=%2 Hz）。</translation>
     </message>
     <message>
-        <source>FSK: 2*Fdev + BitRate (=%1 Hz) exceeds RxBw (=%2 Hz).</source>
-        <translation type="vanished">FSK：2*Fdev + BitRate（=%1 Hz）超过 RxBw（=%2 Hz）。</translation>
-    </message>
-    <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1675"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1688"/>
         <source>Reading all settings...</source>
         <translation>正在读取全部设置...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1681"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1694"/>
         <source>All settings written (Apply required).</source>
         <translation>全部设置已写入（需要应用）。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1690"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1703"/>
         <source>All settings written, applied and saved to EEPROM.</source>
         <translation>全部设置已写入、应用并保存到EEPROM。</translation>
     </message>
     <message>
-        <source>All settings written and applied.</source>
-        <translation type="vanished">全部设置已写入并应用。</translation>
-    </message>
-    <message>
-        <source>Applying task table (160 frames)...</source>
-        <translation type="vanished">Applying task table (160 frames)...</translation>
-    </message>
-    <message>
-        <source>RF test frame queued.</source>
-        <translation type="vanished">RF test frame queued.</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/config_page.cpp" line="710"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1108"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1118"/>
         <source>%1 dBm</source>
         <translation>%1 dBm</translation>
     </message>
@@ -577,118 +501,86 @@
         <translation>实时输入输出</translation>
     </message>
     <message>
-        <source>TX Schedule</source>
-        <translation type="vanished">TX Schedule</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/config_page.cpp" line="87"/>
         <source>RS-485 Passthrough</source>
         <translation>RS-485 透传</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1519"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1529"/>
         <source>Frequency out of range: 137.000 ~ 525.000 MHz.</source>
         <translation>Frequency out of range: 137.000 ~ 525.000 MHz.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="744"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="747"/>
         <source>RF configuration applied (0x29).</source>
         <translation>RF configuration applied (0x29).</translation>
     </message>
     <message>
-        <source>Select a task row first.</source>
-        <translation type="vanished">Select a task row first.</translation>
-    </message>
-    <message>
-        <source>No task rows to remove.</source>
-        <translation type="vanished">No task rows to remove.</translation>
-    </message>
-    <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="958"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="964"/>
         <source>At least one task is required before applying.</source>
         <translation>应用前至少需要 1 个任务。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="975"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1599"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="985"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1612"/>
         <source>Task %1: interval must be at least 1/6 ms.</source>
         <translation>任务 %1：间隔必须至少为 1/6 毫秒。</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="982"/>
-        <location filename="../../widget/config_page/config_page.cpp" line="1605"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="992"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1618"/>
         <source>Task %1: interval exceeds ~10.9 s limit.</source>
         <translation>Task %1: interval exceeds ~10.9 s limit.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="988"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="998"/>
         <source>Applying task table...</source>
         <translation>正在应用任务表...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1111"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1121"/>
         <source>%1 dB</source>
         <translation>%1 dB</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1128"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1138"/>
         <source>Enable the calibration switch first.</source>
         <translation>Enable the calibration switch first.</translation>
     </message>
     <message>
-        <source>Selected: 0x%1 (%2)</source>
-        <translation type="vanished">Selected: 0x%1 (%2)</translation>
-    </message>
-    <message>
-        <source>Select a register first.</source>
-        <translation type="vanished">Select a register first.</translation>
-    </message>
-    <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1311"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1321"/>
         <source>Unknown port</source>
         <translation>Unknown port</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1324"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1334"/>
         <source>No serial port selected.</source>
         <translation>No serial port selected.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1329"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1339"/>
         <source>Opening %1...</source>
         <translation>Opening %1...</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1413"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1423"/>
         <source>Disconnect</source>
         <translation>断开</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1433"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1443"/>
         <source>Connected to %1.</source>
         <translation>Connected to %1.</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1441"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1451"/>
         <source>Disconnected.</source>
         <translation>Disconnected.</translation>
     </message>
     <message>
-        <source>Reg 0x%1 set to 0x%2.</source>
-        <translation type="vanished">Reg 0x%1 set to 0x%2.</translation>
-    </message>
-    <message>
-        <location filename="../../widget/config_page/config_page.cpp" line="1496"/>
+        <location filename="../../widget/config_page/config_page.cpp" line="1506"/>
         <source>Not connected.</source>
         <translation>Not connected.</translation>
-    </message>
-    <message>
-        <source>Connected: %1</source>
-        <translation type="vanished">Connected: %1</translation>
-    </message>
-    <message>
-        <source>Port: Not connected</source>
-        <translation type="vanished">Port: Not connected</translation>
     </message>
 </context>
 <context>
@@ -707,10 +599,6 @@
         <location filename="../../widget/connection_settings/connection_settings.ui" line="42"/>
         <source>Retry Count</source>
         <translation>Retry Count</translation>
-    </message>
-    <message>
-        <source>Applied to request-reply communication. A request is retried up to this count before reporting failure. The 0x1E save command waits the full timeout.</source>
-        <translation type="vanished">Applied to request-reply communication. A request is retried up to this count before reporting failure. The 0x1E save command waits the full timeout.</translation>
     </message>
 </context>
 <context>
@@ -747,41 +635,9 @@
         <source>Send Test</source>
         <translation>发送测试</translation>
     </message>
-    <message>
-        <source>Read All</source>
-        <translation type="vanished">全部读取</translation>
-    </message>
-    <message>
-        <source>Send Test Frame (0x20)</source>
-        <translation type="vanished">Send Test Frame (0x20)</translation>
-    </message>
-    <message>
-        <source>Hint: counters are cleared by writing 0; the test frame sends one telemetry frame over the air.</source>
-        <translation type="vanished">Hint: counters are cleared by writing 0; the test frame sends one telemetry frame over the air.</translation>
-    </message>
 </context>
 <context>
     <name>DigitalPage</name>
-    <message>
-        <source>Digital Inputs (read-only)</source>
-        <translation type="vanished">Digital Inputs (read-only)</translation>
-    </message>
-    <message>
-        <source>Digital Outputs (active-low; switch ON = output conducting)</source>
-        <translation type="vanished">Digital Outputs (active-low; switch ON = output conducting)</translation>
-    </message>
-    <message>
-        <source>Read DI/DO</source>
-        <translation type="vanished">读取 DI/DO</translation>
-    </message>
-    <message>
-        <source>Apply DO</source>
-        <translation type="vanished">应用 DO</translation>
-    </message>
-    <message>
-        <source>DI lamps reflect the input level (lit = high). DO lamps reflect the output state (lit = low / conducting). A checked switch drives its output low.</source>
-        <translation type="vanished">DI lamps reflect the input level (lit = high). DO lamps reflect the output state (lit = low / conducting). A checked switch drives its output low.</translation>
-    </message>
     <message>
         <location filename="../../widget/config_page/pages/digital_page.ui" line="38"/>
         <source>Digital Inputs</source>
@@ -930,10 +786,6 @@
         <location filename="../../widget/config_page/pages/frequency_page.ui" line="104"/>
         <source>Apply</source>
         <translation>应用</translation>
-    </message>
-    <message>
-        <source>Range: 137.000 ~ 525.000 MHz (SX1278). Value is converted to Hz internally. Stored in EEPROM; use Storage to save after write.</source>
-        <translation type="vanished">Range: 137.000 ~ 525.000 MHz (SX1278). Value is converted to Hz internally. Stored in EEPROM; use Storage to save after write.</translation>
     </message>
 </context>
 <context>
@@ -1085,34 +937,6 @@
         <translation>全部应用</translation>
     </message>
     <message>
-        <source>Save All</source>
-        <translation type="vanished">全部保存</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="vanished">Language</translation>
-    </message>
-    <message>
-        <source>Please restart the application to apply the language.</source>
-        <translation type="vanished">Please restart the application to apply the language.</translation>
-    </message>
-    <message>
-        <source>Port: Not connected</source>
-        <translation type="vanished">Port: Not connected</translation>
-    </message>
-    <message>
-        <source>TX: 0  RX: 0</source>
-        <translation type="vanished">TX: 0  RX: 0</translation>
-    </message>
-    <message>
-        <source>Ready</source>
-        <translation type="vanished">Ready</translation>
-    </message>
-    <message>
-        <source>TX: %1  RX: %2</source>
-        <translation type="vanished">TX: %1  RX: %2</translation>
-    </message>
-    <message>
         <location filename="../../widget/main_window/main_window.cpp" line="239"/>
         <source>Untitled %1</source>
         <translation>Untitled %1</translation>
@@ -1193,10 +1017,6 @@
         <location filename="../../widget/config_page/pages/mcu_id_page.ui" line="72"/>
         <source>Read</source>
         <translation>读取</translation>
-    </message>
-    <message>
-        <source>Hint: the device also reports MCU ID in 3 frames on power-up.</source>
-        <translation type="vanished">Hint: the device also reports MCU ID in 3 frames on power-up.</translation>
     </message>
 </context>
 <context>
@@ -1372,10 +1192,6 @@
         <source>Round-Trip Time</source>
         <translation>往返时间</translation>
     </message>
-    <message>
-        <source>Hint: stored in EEPROM; use Storage to save after write.</source>
-        <translation type="vanished">Hint: stored in EEPROM; use Storage to save after write.</translation>
-    </message>
 </context>
 <context>
     <name>PowerPage</name>
@@ -1405,39 +1221,33 @@
         <translation>LNA 增益 (0x38)</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/power_page.ui" line="128"/>
+        <location filename="../../widget/config_page/pages/power_page.ui" line="113"/>
+        <source>Long-Range Mode (0x3F)</source>
+        <translation>远距模式 (0x3F)</translation>
+    </message>
+    <message>
+        <location filename="../../widget/config_page/pages/power_page.ui" line="120"/>
+        <source>Enable</source>
+        <translation>启用</translation>
+    </message>
+    <message>
+        <location filename="../../widget/config_page/pages/power_page.ui" line="142"/>
         <source>Read</source>
         <translation>读取</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/power_page.ui" line="135"/>
+        <location filename="../../widget/config_page/pages/power_page.ui" line="149"/>
         <source>Write</source>
         <translation>写入</translation>
     </message>
     <message>
-        <location filename="../../widget/config_page/pages/power_page.ui" line="142"/>
+        <location filename="../../widget/config_page/pages/power_page.ui" line="156"/>
         <source>Apply</source>
         <translation>应用</translation>
-    </message>
-    <message>
-        <source>Apply RF Now</source>
-        <translation type="vanished">立即应用射频</translation>
-    </message>
-    <message>
-        <source>Hint: TX Power code 0..15, shown alongside its dBm value. Preamble 0..65535; Sync Word and LNA are raw bytes. Apply RF Now (0x29) re-configures the radio immediately without reboot. Values stored in EEPROM, use Storage to save after write.</source>
-        <translation type="vanished">Hint: TX Power code 0..15, shown alongside its dBm value. Preamble 0..65535; Sync Word and LNA are raw bytes. Apply RF Now (0x29) re-configures the radio immediately without reboot. Values stored in EEPROM, use Storage to save after write.</translation>
     </message>
 </context>
 <context>
     <name>RegisterPage</name>
-    <message>
-        <source>Reg</source>
-        <translation type="vanished">Reg</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名称</translation>
-    </message>
     <message>
         <location filename="../../widget/config_page/pages/register_page.ui" line="29"/>
         <source>ID</source>
@@ -1488,18 +1298,6 @@
         <source>Apply</source>
         <translation>应用</translation>
     </message>
-    <message>
-        <source>Selected: --</source>
-        <translation type="vanished">已选：--</translation>
-    </message>
-    <message>
-        <source>Write Register</source>
-        <translation type="vanished">写寄存器</translation>
-    </message>
-    <message>
-        <source>Debug only: writes the value&apos;s low byte directly to the SX1278 register (frame address 0x60 | reg). Use the white-list registers from the firmware manual for persistent settings.</source>
-        <translation type="vanished">Debug only: writes the value&apos;s low byte directly to the SX1278 register (frame address 0x60 | reg). Use the white-list registers from the firmware manual for persistent settings.</translation>
-    </message>
 </context>
 <context>
     <name>RolePage</name>
@@ -1519,21 +1317,9 @@
         <translation>主站（按任务表周期发送）</translation>
     </message>
     <message>
-        <source>Slave</source>
-        <translation type="vanished">从站</translation>
-    </message>
-    <message>
-        <source>Master</source>
-        <translation type="vanished">主站</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/pages/role_page.ui" line="79"/>
         <source>Write</source>
         <translation>写入</translation>
-    </message>
-    <message>
-        <source>Hint: stored in EEPROM; use Storage to save after write.</source>
-        <translation type="vanished">Hint: stored in EEPROM; use Storage to save after write.</translation>
     </message>
 </context>
 <context>
@@ -1613,10 +1399,6 @@
         <source>Apply</source>
         <translation>应用</translation>
     </message>
-    <message>
-        <source>Hint: stored in EEPROM; use Storage to save after write.</source>
-        <translation type="vanished">Hint: stored in EEPROM; use Storage to save after write.</translation>
-    </message>
 </context>
 <context>
     <name>RssiPage</name>
@@ -1634,14 +1416,6 @@
         <location filename="../../widget/config_page/pages/rssi_page.ui" line="86"/>
         <source>Read</source>
         <translation>读取</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">刷新</translation>
-    </message>
-    <message>
-        <source>Hint: values are signed, measured on the last received RF frame.</source>
-        <translation type="vanished">Hint: values are signed, measured on the last received RF frame.</translation>
     </message>
 </context>
 <context>
@@ -1692,17 +1466,9 @@
         <translation>应用</translation>
     </message>
     <message>
-        <source>Apply to Device</source>
-        <translation type="vanished">应用到设备</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/pages/rtc_page.ui" line="235"/>
         <source>Set from PC</source>
         <translation>从 PC 设置</translation>
-    </message>
-    <message>
-        <source>Hint: Set from PC fills the fields with the host clock and writes them to the device. The year stores the low 8 bits (2000 + value).</source>
-        <translation type="vanished">Hint: Set from PC fills the fields with the host clock and writes them to the device. The year stores the low 8 bits (2000 + value).</translation>
     </message>
 </context>
 <context>
@@ -1746,10 +1512,6 @@
         <translation>保存配置</translation>
     </message>
     <message>
-        <source>Save writes the current configuration to the internal EEPROM so it survives power-off; it is a blocking operation (~hundreds of ms) and the device ignores frames until it replies. Factory Reset clears the configuration area and the firmware falls back to defaults. Write to EEPROM items (network, RF, tasks, 485) only becomes persistent after Save.</source>
-        <translation type="vanished">Save writes the current configuration to the internal EEPROM so it survives power-off; it is a blocking operation (~hundreds of ms) and the device ignores frames until it replies. Factory Reset clears the configuration area and the firmware falls back to defaults. Write to EEPROM items (network, RF, tasks, 485) only becomes persistent after Save.</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/pages/storage_page.ui" line="85"/>
         <source>Factory Reset</source>
         <translation>恢复出厂</translation>
@@ -1789,14 +1551,6 @@
         <location filename="../../widget/config_page/pages/task_table_page.ui" line="67"/>
         <source>Return CI2</source>
         <translation>回传内容 CI2</translation>
-    </message>
-    <message>
-        <source>Local name, not written to device</source>
-        <translation type="vanished">Local name, not written to device</translation>
-    </message>
-    <message>
-        <source>Interval, ms</source>
-        <translation type="vanished">间隔, ms</translation>
     </message>
     <message>
         <location filename="../../widget/config_page/pages/task_table_page.ui" line="128"/>
@@ -1873,14 +1627,6 @@
         <translation>应用</translation>
     </message>
     <message>
-        <source>10-bit analog</source>
-        <translation type="vanished">10 位模拟</translation>
-    </message>
-    <message>
-        <source>8-bit analog</source>
-        <translation type="vanished">8 位模拟</translation>
-    </message>
-    <message>
         <location filename="../../widget/config_page/pages/task_table_page.ui" line="193"/>
         <location filename="../../widget/config_page/pages/task_table_page.ui" line="270"/>
         <source>A-law compand</source>
@@ -1890,10 +1636,6 @@
         <location filename="../../widget/config_page/pages/task_table_page.ui" line="202"/>
         <source>Request return (CI2)</source>
         <translation>要求回传 (CI2)</translation>
-    </message>
-    <message>
-        <source>Hint: Name is a local label stored in the .iml file only (not written). CI1 = content the master sends; CI2 = content requested back from the slave. Bits: D15-8, D7-0, A3..A0, word size (10/8-bit), A-law companding. Interval is in ms (converted to the 166.7us TIM4 tick internally, max ~10.9 s). EEPROM items persist only after Storage &gt; Save.</source>
-        <translation type="vanished">Hint: Name is a local label stored in the .iml file only (not written). CI1 = content the master sends; CI2 = content requested back from the slave. Bits: D15-8, D7-0, A3..A0, word size (10/8-bit), A-law companding. Interval is in ms (converted to the 166.7us TIM4 tick internally, max ~10.9 s). EEPROM items persist only after Storage &gt; Save.</translation>
     </message>
 </context>
 </TS>
