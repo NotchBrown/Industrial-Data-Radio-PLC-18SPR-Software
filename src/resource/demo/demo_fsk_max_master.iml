@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<druppc type="master" version="1" app="0.0.3">
+ <address local="1" peer="2"/>
+ <rf freq="470.000" modem="1" sf="7" bw="500" cr="5" fskbitrate="300000" fskfdev="50000" fskbw="3"/>
+ <power tx="15" preamble="8" sync="193" lna="35"/>
+ <rs485 baud="115200" buf="64" timeout="5" enable="0"/>
+ <tasks count="1">
+  <task ci1="FE" ci2="FE" ena="1" period="2"/>
+ </tasks>
+</druppc>

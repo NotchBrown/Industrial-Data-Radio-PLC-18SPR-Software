@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<druppc type="slave" version="1" app="0.0.3">
+ <address local="2" peer="1"/>
+ <rf freq="470.000" modem="0" sf="12" bw="125" cr="8" fskbitrate="100000" fskfdev="50000" fskbw="2"/>
+ <power tx="15" preamble="8" sync="18" lna="35" longrange="1"/>
+ <rs485 baud="115200" buf="64" timeout="5" enable="0"/>
+ <slave ci2="40"/>
+</druppc>
